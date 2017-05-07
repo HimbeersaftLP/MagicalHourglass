@@ -1,27 +1,16 @@
-/* Settings: */
-// The bot's command prefix:
-const prefix = ',';
-// Imgur API token:
-const imgurtoken = 'blah';
-// The guild's id this bot will be mainly used for:
-const mainguild = 'blah';
-// The ID of the raspberry juice emoji:
-const juiceid = 'blah';
-// Your OpenWeatherMap App ID:
-const owmid = 'blah';
-// You bot account's token:
-const discordtoken = 'blah';
+const config = require('./config.json');
 
-/* Begin of actual code: */
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
 var imgur = require('imgur');
-imgur.setClientId(imgurtoken);
+imgur.setClientId(config.imgurtoken);
 
 var S = require('string');
 
 var request = require('request');
+
+var fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
 client.on('ready', () => {
   client.user.setStatus('online');
@@ -30,17 +19,20 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
-  if (S(message.content).startsWith(prefix)) {
+  if (S(message.content).startsWith(config.prefix)) {
 
     if (message.author.bot) return;
 
     var cmd = message.content.split(" ")[0];
-    cmd = S(cmd).chompLeft(prefix).s;
+    cmd = S(cmd).chompLeft(config.prefix).s;
+    
+    if (config.blocked.includes(cmd)) return;
 
     console.log('Command ' + cmd + ' has been recieved from ' + message.author.username);
 
-    if(message.guild.id == mainguild){
-      var juice = message.guild.emojis.get(juiceid);
+    if(message.guild.id == config.mainguild){
+      var juice = message.guild.emojis.get(config.juiceid);
+      fish.push(juice);
       message.react(juice);
     }
 
@@ -75,15 +67,16 @@ client.on('message', message => {
 
     else if (cmd == 'say') {
       message.delete();
-      message.channel.sendMessage(args.join(" "));
+      message.channel.sendMessage(args.join(' '));
     }
 
     else if (cmd == '8ball') {
-      request.get('https://api.rtainc.co/twitch/8ball?format=The+Magic+8-Ball+says:+%5B0%5D', function (error, response, body) {
+      request.get('https://8ball.delegator.com/magic/JSON/' + args.join(' '), function (error, response, body) {
         if (!error && response.statusCode == 200) {
-            message.reply(body);
+          var eball = JSON.parse(body);
+          message.reply(eball.magic.answer + '\nType: ' + eball.magic.type);
         }else{
-            message.reply('An error occured while accessing the 8ball API!');
+          message.reply('An error occured while accessing the 8ball API!');
         }
         });
     }
@@ -96,7 +89,7 @@ client.on('message', message => {
       message.reply('Getting weather from OpenWatherMap...')
         .then(function(message){
           var todelete = message;
-          request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + owmid + '&units=metric&q=' + args[0], function (error, response, body) {
+          request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + args[0], function (error, response, body) {
             if (!error && response.statusCode == 200) {
               var w = JSON.parse(body);
               var fahrenheit = (w.main.temp * 9/5 + 32).toFixed(2);
@@ -107,7 +100,7 @@ client.on('message', message => {
                   .setDescription(w.weather[0].main)
                   .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
                   .addField('Weather description', w.weather[0].description)
-                  .addField('Temperature', w.main.temp + ' �C / ' + fahrenheit + ' �F')
+                  .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
                   .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
                   .addField('Pressure', w.main.pressure + ' hPa')
                   .addField('Humidity', w.main.humidity + ' %')
@@ -139,6 +132,12 @@ client.on('message', message => {
         }
       });
     }
+    
+    else if (cmd == 'fish') {
+      var cfish = fish[Math.floor(Math.random() * fish.length)];
+      message.reply('You caught a ' + cfish + '.');
+      message.react(cfish);
+    }
 
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
@@ -150,14 +149,15 @@ client.on('message', message => {
         .addField(',randomsofe', 'Generate a random SOFe avatar')
         .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
         .addField(',say', 'Let me say something for you...\nExample: ,say Hi')
-        .addField(',8ball', 'Uses https://api.rtainc.co/twitch/8ball to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
+        .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
         .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
-        .addField(',cat', 'Get a random cat image from random.cat');
+        .addField(',cat', 'Get a random cat image from random.cat')
+        .addField(',fish', 'Go fishing!');
       message.author.sendEmbed(help);
     }
 
     else{
-      if(message.guild.id == mainguild){
+      if(message.guild.id == config.mainguild){
         message.react('❌');
       }
     }
@@ -165,7 +165,7 @@ client.on('message', message => {
   }
 });
 
-client.login(discordtoken);
+client.login(config.discordtoken);
 
 function getrandrot() {
     $rand = Math.floor((Math.random() * 4) + 1);
