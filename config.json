@@ -1,0 +1,15 @@
+{
+  "prefix": ",",
+  
+  "discordtoken": "Your Discord bot accounts token",
+  "imgurtoken": "Your Imgur API token",
+  "owmid": "Your OpenWeatherMap App ID",
+  
+  "mainguild": "The guild's id this bot has been installed for",
+  "juiceid": "ID of the Raspberry juice emoji",
+  
+  "blocked": [
+    "blocked",
+    "commands"
+  ]
+}
