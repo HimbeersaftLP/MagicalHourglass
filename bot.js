@@ -90,7 +90,7 @@ client.on('message', message => {
         message.reply('Usage: ,weather <city>\nExample: ,weather London');
         return;
       }
-      message.reply('Getting weather from OpenWatherMap...')
+      message.reply('Getting weather from OpenWeatherMap...')
         .then(function(message){
           var todelete = message;
           request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + args[0], function (error, response, body) {
@@ -142,6 +142,19 @@ client.on('message', message => {
       message.reply('You caught a ' + cfish + '.');
       message.react(cfish);
     }
+    
+    else if (cmd == 't') {
+      message.channel.startTyping();
+      request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + args.join(' '), function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          var b = JSON.parse(body);
+          message.reply(b.botsay);
+        }else{
+          message.reply('An error occured while accessing the Program-O API!');
+        }
+        message.channel.stopTyping();
+      });
+    }
 
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
@@ -156,7 +169,8 @@ client.on('message', message => {
         .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
         .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
         .addField(',cat', 'Get a random cat image from random.cat')
-        .addField(',fish', 'Go fishing!');
+        .addField(',fish', 'Go fishing!')
+        .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?');
       message.author.send("", { embed: help });
     }
 
