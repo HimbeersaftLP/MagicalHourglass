@@ -157,7 +157,7 @@ client.on('message', message => {
         .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
         .addField(',cat', 'Get a random cat image from random.cat')
         .addField(',fish', 'Go fishing!');
-      message.author.send("", new Discord.MessageOptions(false, "", help);
+      message.author.send("", new Discord.MessageOptions(false, "", help));
     }
 
     else{
@@ -179,7 +179,7 @@ if(firstrun == 1){
 }
 
 function sendAnEmbed(message, embed){
-  message.channel.send("", new Discord.MessageOptions(false, "", embed);
+  message.channel.send("", new Discord.MessageOptions(false, "", embed));
 }
 
 function getrandrot() {
