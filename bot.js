@@ -12,6 +12,8 @@ var request = require('request');
 
 var fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
+var firstrun = 1;
+
 client.on('ready', () => {
   client.user.setStatus('online');
   console.log('Everything connected!');
@@ -32,7 +34,9 @@ client.on('message', message => {
 
     if(message.guild.id == config.mainguild){
       var juice = message.guild.emojis.get(config.juiceid);
-      fish.push(juice);
+      if(!fish.includes(juice)){
+        fish.push(juice);
+      }
       message.react(juice);
     }
 
@@ -67,7 +71,7 @@ client.on('message', message => {
 
     else if (cmd == 'say') {
       message.delete();
-      message.channel.sendMessage(args.join(' '));
+      message.channel.send(args.join(' '));
     }
 
     else if (cmd == '8ball') {
@@ -106,7 +110,7 @@ client.on('message', message => {
                   .addField('Humidity', w.main.humidity + ' %')
                   .addField('Cloudiness', w.clouds.all + ' %')
                   .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
-              message.channel.sendEmbed(wth);
+              sendAnEmbed(message, wth);
               todelete.delete();
             }else{
               message.reply('An error occured while accessing the OpenWatherMap API!');
@@ -126,7 +130,7 @@ client.on('message', message => {
             .setDescription('Link: [Click Here](' + c.file + ')')
             .setThumbnail(c.file)
             .setFooter('Randomly generated cat link by random.cat');
-          message.channel.sendEmbed(cat);
+          sendAnEmbed(message, cat);
         }else{
           message.reply('An error occured while accessing the random.cat API!');
         }
@@ -153,7 +157,7 @@ client.on('message', message => {
         .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
         .addField(',cat', 'Get a random cat image from random.cat')
         .addField(',fish', 'Go fishing!');
-      message.author.sendEmbed(help);
+      message.author.send("", new Discord.MessageOptions(false, "", help);
     }
 
     else{
@@ -161,11 +165,22 @@ client.on('message', message => {
         message.react('❌');
       }
     }
+    
+    fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
   }
 });
 
-client.login(config.discordtoken);
+if(firstrun == 1){
+  client.login(config.discordtoken);
+}else{
+  console.log("Not logging in again for preventing bot token reset!"); // TODO: Fix the actual problem
+  firstrun = 0;
+}
+
+function sendAnEmbed(message, embed){
+  message.channel.send("", new Discord.MessageOptions(false, "", embed);
+}
 
 function getrandrot() {
     $rand = Math.floor((Math.random() * 4) + 1);
