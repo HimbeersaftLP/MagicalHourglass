@@ -187,9 +187,9 @@ client.on('message', message => {
 
 if(firstrun == 1){
   client.login(config.discordtoken);
+  firstrun = 0;
 }else{
   console.log("Not logging in again for preventing bot token reset!"); // TODO: Fix the actual problem
-  firstrun = 0;
 }
 
 function sendAnEmbed(message, embed){
