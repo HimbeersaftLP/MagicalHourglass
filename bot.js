@@ -186,7 +186,13 @@ client.on('message', message => {
 });
 
 if(firstrun == 1){
-  client.login(config.discordtoken);
+  client.login(config.discordtoken)
+    .then(function(r){
+      console.log("Login successful! " + r);
+    })
+    .catch(function(r){
+      console.error("Login not successful! " + r);
+    });
   firstrun = 0;
 }else{
   console.log("Not logging in again for preventing bot token reset!"); // TODO: Fix the actual problem
