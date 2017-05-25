@@ -14,10 +14,21 @@ var fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
 var firstrun = 1;
 
+var readyspam = 0;
+
 client.on('ready', () => {
   client.user.setStatus('online');
   console.log('Everything connected!');
   client.user.setGame('-> ,help <-');
+  if(readyspam == 0){
+    readyspam = 1;
+    setTimeout(function(){
+      readyspam = 0;
+    }, 3000);
+  }else{
+    console.error("Stopping due to client-ready spam, please restart the bot!");
+    process.exit(1);
+  }
 });
 
 client.on('message', message => {
