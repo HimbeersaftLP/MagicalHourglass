@@ -166,6 +166,32 @@ client.on('message', message => {
         message.channel.stopTyping();
       });
     }
+    
+    else if (cmd == 'whoami') {
+      var a = message.author;
+      var info = new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle('Information about the user ' + a.username + ':')
+        .addField('Username', a.username)
+        .addField('ID', a.id)
+        .addField('Discord Tag', a.tag)
+        .addField('Avatar URL', a.displayAvatarURL)
+        .addField('Created at', a.createdAt)
+        .addField('Bot?', a.bot)
+        .addField('Game', a.presence.game)
+        .addField('Status', a.presence.status)
+        .addField('Last Message', a.lastMessage.cleanContent)
+        .setThumbnail(a.displayAvatarURL);
+      sendAnEmbed(message, info);
+    }
+    
+    else if (cmd == 'eval') {
+      if(message.author.id == config.ownerid){
+        message.channel.send(eval(args.join(' ')));
+      } else {
+        message.reply("You ain't doing that!");
+      }
+    }
 
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
@@ -181,7 +207,8 @@ client.on('message', message => {
         .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
         .addField(',cat', 'Get a random cat image from random.cat')
         .addField(',fish', 'Go fishing!')
-        .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?');
+        .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
+        .addField(',whoami', 'Get information about yourself.');
       message.author.send("", { embed: help });
     }
 
