@@ -27,7 +27,7 @@ client.on('ready', () => {
     }, 3000);
   }else{
     console.error("Stopping due to client-ready spam, please restart the bot!");
-    process.exit(1);
+    process.exit(0);
   }
 });
 
@@ -168,21 +168,15 @@ client.on('message', message => {
     }
     
     else if (cmd == 'whoami') {
-      var a = message.author;
-      var info = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random()*16777215))
-        .setTitle('Information about the user ' + a.username + ':')
-        .addField('Username', a.username)
-        .addField('ID', a.id)
-        .addField('Discord Tag', a.tag)
-        .addField('Avatar URL', a.displayAvatarURL)
-        .addField('Created at', a.createdAt)
-        .addField('Bot?', a.bot)
-        .addField('Game', a.presence.game)
-        .addField('Status', a.presence.status)
-        .addField('Last Message', a.lastMessage.cleanContent)
-        .setThumbnail(a.displayAvatarURL);
-      sendAnEmbed(message, info);
+      sendAnEmbed(message, whois(message.author, false));
+    }
+    
+    else if (cmd == 'whois') {
+      if(message.mentions.members.first() != undefined){
+        sendAnEmbed(message, whois(message.mentions.members.first().user));
+      }else{
+        message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
+      }
     }
     
     else if (cmd == 'eval') {
@@ -208,7 +202,8 @@ client.on('message', message => {
         .addField(',cat', 'Get a random cat image from random.cat')
         .addField(',fish', 'Go fishing!')
         .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
-        .addField(',whoami', 'Get information about yourself.');
+        .addField(',whoami', 'Get information about yourself.')
+        .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553');
       message.author.send("", { embed: help });
     }
 
@@ -238,6 +233,31 @@ if(firstrun == 1){
 
 function sendAnEmbed(message, embed){
   message.channel.send("", { embed: embed });
+}
+
+function whois(m, mtn = true){
+  var emb =  new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle('Information about the user ' + m.username + ':')
+        .addField('Username', m.username)
+        .addField('ID', m.id)
+        .addField('Discord Tag', m.tag)
+        .addField('Avatar URL', m.displayAvatarURL)
+        .addField('Created at', m.createdAt)
+        .addField('Bot?', m.bot);
+        if(m.presence.game != null){
+          emb.addField('Game', m.presence.game.name);
+        }else{
+          emb.addField('Game', 'None');
+        }
+        emb.addField('Status', m.presence.status);
+        if(m.lastMessage != null && mtn == true){
+          emb.addField('Last Message', m.lastMessage.cleanContent);
+        }else if(mtn == true){
+          emb.addField('Last Message', 'Not found');
+        }
+        emb.setThumbnail(m.displayAvatarURL);
+        return emb;
 }
 
 function getrandrot() {
