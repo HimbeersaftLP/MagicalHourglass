@@ -4,6 +4,8 @@
   "discordtoken": "Your Discord bot accounts token",
   "imgurtoken": "Your Imgur API token",
   "owmid": "Your OpenWeatherMap App ID",
+  "googlekey": "Your Google CSE Api key",
+  "google_cse_id": "Your Google CSE search engine ID",
   
   "mainguild": "The guild's id this bot has been installed for",
   "juiceid": "ID of the Raspberry juice emoji",
@@ -12,5 +14,10 @@
   "blocked": [
     "blocked",
     "commands"
+  ],
+  
+  "blockedusers": [
+    "an array of",
+    "blocked users"
   ]
 }
