@@ -35,10 +35,11 @@ client.on('message', message => {
   if (S(message.content).startsWith(config.prefix)) {
 
     if (message.author.bot) return;
+    if (config.blockedusers.includes(message.author.id)) return;
 
     var cmd = message.content.split(" ")[0];
     cmd = S(cmd).chompLeft(config.prefix).s;
-    
+
     if (config.blocked.includes(cmd)) return;
 
     console.log('Command ' + cmd + ' has been recieved from ' + message.author.username);
@@ -187,6 +188,39 @@ client.on('message', message => {
       }
     }
 
+    else if (cmd == 'googlepic') {
+      if(!args[0]) {
+        message.reply('Usage: ,googlepic <search term>');
+      } else {
+      var oargs = JSON.parse(JSON.stringify(args));
+      if(args[args.length-2] == "-r" && !isNaN(args[args.length-1])) {
+        args.splice(args.length - 2, 2);
+      }
+      request.get('https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(args.join(' ')) + '&cx=' + config.google_cse_id + '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googlekey, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          var g = JSON.parse(body);
+          if(oargs[oargs.length-2] == "-r" && !isNaN(oargs[oargs.length-1])) {
+            var ri = Math.floor(Number(oargs[oargs.length-1]));
+            if(ri <=0 || ri > g.items.length){
+              ri = 0;
+              message.reply('This result index is invalid!');
+            } else {
+             ri = ri - 1;
+            }
+          } else { ri = 0; }
+          var gres = new Discord.RichEmbed()
+            .setColor(Math.floor(Math.random()*16777215))
+            .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
+            .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\n,googlepic <search term> -r <number> to see the other results.')
+            .setImage(g.items[ri].link);
+          message.reply(g.searchInformation.formattedTotalResults + ' results in ' + g.searchInformation.formattedSearchTime + ' seconds:', {embed : gres});
+        }else{
+          message.reply('An error occured while accessing the Google Custom Search API!');
+        }
+      });
+      }
+    }
+
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
       var help = new Discord.RichEmbed()
@@ -203,7 +237,8 @@ client.on('message', message => {
         .addField(',fish', 'Go fishing!')
         .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
         .addField(',whoami', 'Get information about yourself.')
-        .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553');
+        .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553')
+        .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team');
       message.author.send("", { embed: help });
     }
 
@@ -228,7 +263,7 @@ if(firstrun == 1){
     });
   firstrun = 0;
 }else{
-  console.log("Not logging in again for preventing bot token reset!"); // TODO: Fix the actual problem
+  console.log("Not logging in again for preventing bot token reset!");
 }
 
 function sendAnEmbed(message, embed){
