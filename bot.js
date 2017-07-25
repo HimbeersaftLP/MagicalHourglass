@@ -120,7 +120,6 @@ client.on('message', message => {
             .addField('Cloudiness', w.clouds.all + ' %')
             .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
           sendAnEmbed(message, wth);
-          todelete.delete();
         }else{
           message.reply('An error occured while accessing the OpenWatherMap API!');
         }
