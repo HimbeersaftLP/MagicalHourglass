@@ -94,7 +94,7 @@ client.on('message', message => {
         }else{
           message.reply('An error occured while accessing the 8ball API!');
         }
-        });
+      });
     }
 
     else if (cmd == 'weather') {
@@ -102,34 +102,29 @@ client.on('message', message => {
         message.reply('Usage: ,weather <city>\nExample: ,weather London');
         return;
       }
-      message.reply('Getting weather from OpenWeatherMap...')
-        .then(function(message){
-          var todelete = message;
-          request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + args[0], function (error, response, body) {
-            if (!error && response.statusCode == 200) {
-              var w = JSON.parse(body);
-              var fahrenheit = (w.main.temp * 9/5 + 32).toFixed(2);
-              var mph = (w.wind.speed * 2.23693629205).toFixed(1);
-              var wth = new Discord.RichEmbed()
-                  .setColor(Math.floor(Math.random()*16777215))
-                  .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
-                  .setDescription(w.weather[0].main)
-                  .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
-                  .addField('Weather description', w.weather[0].description)
-                  .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
-                  .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
-                  .addField('Pressure', w.main.pressure + ' hPa')
-                  .addField('Humidity', w.main.humidity + ' %')
-                  .addField('Cloudiness', w.clouds.all + ' %')
-                  .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
-              sendAnEmbed(message, wth);
-              todelete.delete();
-            }else{
-              message.reply('An error occured while accessing the OpenWatherMap API!');
-              todelete.delete();
-            }
-          });
-        });
+      request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + args[0], function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          var w = JSON.parse(body);
+          var fahrenheit = (w.main.temp * 9/5 + 32).toFixed(2);
+          var mph = (w.wind.speed * 2.23693629205).toFixed(1);
+          var wth = new Discord.RichEmbed()
+            .setColor(Math.floor(Math.random()*16777215))
+            .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
+            .setDescription(w.weather[0].main)
+            .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
+            .addField('Weather description', w.weather[0].description)
+            .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
+            .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
+            .addField('Pressure', w.main.pressure + ' hPa')
+            .addField('Humidity', w.main.humidity + ' %')
+            .addField('Cloudiness', w.clouds.all + ' %')
+            .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
+          sendAnEmbed(message, wth);
+          todelete.delete();
+        }else{
+          message.reply('An error occured while accessing the OpenWatherMap API!');
+        }
+      });
     }
     
     else if (cmd == 'cat') {
@@ -221,6 +216,66 @@ client.on('message', message => {
       }
     }
 
+    else if (cmd == 'poggit') {
+      if(!args[0]){
+        message.reply('Usage: ,poggit <plugin name>');
+      }else{
+        request.get('https://poggit.pmmp.io/releases.json?name=' + args[0], function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            if(body == '[]'){
+              message.reply('Error: Plugin not found!');
+            }else{
+              var pl = JSON.parse(body)[0];
+              var pinfo = new Discord.RichEmbed()
+              .setColor(Math.floor(Math.random()*16777215))
+              .setTitle(pl.name + ' (' + pl.state_name + '):')
+              .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: '+ pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
+              .setThumbnail(pl.icon_url)
+              .setTimestamp(new Date(pl.submission_date*1000))
+              .setURL(pl.html_url)
+              .setFooter('Data from poggit.pmmp.io', 'https://avatars7.githubusercontent.com/u/22367352?v=4&s=50');
+              sendAnEmbed(message, pinfo);
+            }
+          }else{
+            message.reply('An error occured while accessing the Poggit API!');
+          }
+        });
+      }
+    }
+
+    else if (cmd == 'channels'){
+      if(!args[0]){
+        message.reply('Usage: ,channels <text|voice>');
+      }else{
+        var clist = "";
+        message.guild.channels.array().forEach(function(e, i, a){
+          if(e.type==args[0]){
+            clist += " " + e.toString();
+          }
+        });
+        if(clist == "") clist = 'No channels of this type were found';
+        message.reply(clist);
+      }
+    }
+
+    else if (cmd == 'chuck') {
+      request.get('https://api.chucknorris.io/jokes/random', function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+          var cn = JSON.parse(body);
+          var cj= new Discord.RichEmbed()
+            .setColor(Math.floor(Math.random()*16777215))
+            .setTitle('Your Chuck Norris fact, fresh from chucknorris.io:')
+            .setDescription(cn.value)
+            .setThumbnail(cn.icon_url)
+            .setURL(cn.url)
+            .setFooter('Fact from api.chucknorris.io', 'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png');
+          sendAnEmbed(message, cj);
+        }else{
+          message.reply("You can't access the Chuck Norris API, the Chuck Norris API accesses you!");
+        }
+      });
+    }
+
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
       var help = new Discord.RichEmbed()
@@ -238,7 +293,10 @@ client.on('message', message => {
         .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
         .addField(',whoami', 'Get information about yourself.')
         .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553')
-        .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team');
+        .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team')
+        .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
+        .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
+        .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.');
       message.author.send("", { embed: help });
     }
 
