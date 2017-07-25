@@ -6,6 +6,7 @@
   "owmid": "Your OpenWeatherMap App ID",
   "googlekey": "Your Google CSE Api key",
   "google_cse_id": "Your Google CSE search engine ID",
+  "apiai_token": "The API key of your API.AI chatbot",
   
   "mainguild": "The guild's id this bot has been installed for",
   "juiceid": "ID of the Raspberry juice emoji",
