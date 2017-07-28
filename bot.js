@@ -10,6 +10,9 @@ var S = require('string');
 
 var request = require('request');
 
+var apiai = require('apiai');
+var ai = apiai(config.apiai_token);
+
 var fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
 var firstrun = 1;
@@ -102,45 +105,11 @@ client.on('message', message => {
         message.reply('Usage: ,weather <city>\nExample: ,weather London');
         return;
       }
-      request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + args[0], function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var w = JSON.parse(body);
-          var fahrenheit = (w.main.temp * 9/5 + 32).toFixed(2);
-          var mph = (w.wind.speed * 2.23693629205).toFixed(1);
-          var wth = new Discord.RichEmbed()
-            .setColor(Math.floor(Math.random()*16777215))
-            .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
-            .setDescription(w.weather[0].main)
-            .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
-            .addField('Weather description', w.weather[0].description)
-            .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
-            .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
-            .addField('Pressure', w.main.pressure + ' hPa')
-            .addField('Humidity', w.main.humidity + ' %')
-            .addField('Cloudiness', w.clouds.all + ' %')
-            .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
-          sendAnEmbed(message, wth);
-        }else{
-          message.reply('An error occured while accessing the OpenWatherMap API!');
-        }
-      });
+      getweather(args[0], message);
     }
     
     else if (cmd == 'cat') {
-      request.get('http://random.cat/meow', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var c = JSON.parse(body);
-          var cat = new Discord.RichEmbed()
-            .setColor(Math.floor(Math.random()*16777215))
-            .setTitle("Here's your random cat:")
-            .setDescription('Link: [Click Here](' + c.file + ')')
-            .setThumbnail(c.file)
-            .setFooter('Randomly generated cat link by random.cat');
-          sendAnEmbed(message, cat);
-        }else{
-          message.reply('An error occured while accessing the random.cat API!');
-        }
-      });
+      getcat(message);
     }
     
     else if (cmd == 'fish') {
@@ -151,7 +120,7 @@ client.on('message', message => {
     
     else if (cmd == 't') {
       message.channel.startTyping();
-      request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + args.join(' '), function (error, response, body) {
+      request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function (error, response, body) {
         if (!error && response.statusCode == 200) {
           var b = JSON.parse(body);
           message.reply(b.botsay);
@@ -186,32 +155,14 @@ client.on('message', message => {
       if(!args[0]) {
         message.reply('Usage: ,googlepic <search term>');
       } else {
-      var oargs = JSON.parse(JSON.stringify(args));
-      if(args[args.length-2] == "-r" && !isNaN(args[args.length-1])) {
-        args.splice(args.length - 2, 2);
-      }
-      request.get('https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(args.join(' ')) + '&cx=' + config.google_cse_id + '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googlekey, function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var g = JSON.parse(body);
-          if(oargs[oargs.length-2] == "-r" && !isNaN(oargs[oargs.length-1])) {
-            var ri = Math.floor(Number(oargs[oargs.length-1]));
-            if(ri <=0 || ri > g.items.length){
-              ri = 0;
-              message.reply('This result index is invalid!');
-            } else {
-             ri = ri - 1;
-            }
-          } else { ri = 0; }
-          var gres = new Discord.RichEmbed()
-            .setColor(Math.floor(Math.random()*16777215))
-            .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
-            .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\n,googlepic <search term> -r <number> to see the other results.')
-            .setImage(g.items[ri].link);
-          message.reply(g.searchInformation.formattedTotalResults + ' results in ' + g.searchInformation.formattedSearchTime + ' seconds:', {embed : gres});
-        }else{
-          message.reply('An error occured while accessing the Google Custom Search API!');
+        var oargs = JSON.parse(JSON.stringify(args));
+        if(args[args.length-2] == "-r" && !isNaN(args[args.length-1])) {
+          args.splice(args.length - 2, 2);
+          var ri = oargs[oargs.length-1];
+        } else {
+          ri = 1;
         }
-      });
+        googlepic(args.join(' '), message, ri);
       }
     }
 
@@ -219,26 +170,7 @@ client.on('message', message => {
       if(!args[0]){
         message.reply('Usage: ,poggit <plugin name>');
       }else{
-        request.get('https://poggit.pmmp.io/releases.json?name=' + args[0], function (error, response, body) {
-          if (!error && response.statusCode == 200) {
-            if(body == '[]'){
-              message.reply('Error: Plugin not found!');
-            }else{
-              var pl = JSON.parse(body)[0];
-              var pinfo = new Discord.RichEmbed()
-              .setColor(Math.floor(Math.random()*16777215))
-              .setTitle(pl.name + ' (' + pl.state_name + '):')
-              .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: '+ pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
-              .setThumbnail(pl.icon_url)
-              .setTimestamp(new Date(pl.submission_date*1000))
-              .setURL(pl.html_url)
-              .setFooter('Data from poggit.pmmp.io', 'https://avatars7.githubusercontent.com/u/22367352?v=4&s=50');
-              sendAnEmbed(message, pinfo);
-            }
-          }else{
-            message.reply('An error occured while accessing the Poggit API!');
-          }
-        });
+        searchpoggit(args[0], message);
       }
     }
 
@@ -258,21 +190,63 @@ client.on('message', message => {
     }
 
     else if (cmd == 'chuck') {
-      request.get('https://api.chucknorris.io/jokes/random', function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var cn = JSON.parse(body);
-          var cj= new Discord.RichEmbed()
-            .setColor(Math.floor(Math.random()*16777215))
-            .setTitle('Your Chuck Norris fact, fresh from chucknorris.io:')
-            .setDescription(cn.value)
-            .setThumbnail(cn.icon_url)
-            .setURL(cn.url)
-            .setFooter('Fact from api.chucknorris.io', 'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png');
-          sendAnEmbed(message, cj);
-        }else{
-          message.reply("You can't access the Chuck Norris API, the Chuck Norris API accesses you!");
+      getchuck(message);
+    }
+
+    else if (cmd == 'ai') {
+      var air = ai.textRequest(args.join(' '), {
+        sessionId: gsessionid(message, "member")
+      });
+
+      air.on('response', function(r) {
+        message.reply(r.result.fulfillment.speech);
+        if(!r.result.actionIncomplete){
+          switch(r.result.action){
+            case "web.search":
+              switch(r.result.parameters.engine){
+                case "Google Images":
+                  googlepic(r.result.parameters.q, message);
+                  break;
+                case "Poggit":
+                  searchpoggit(r.result.parameters.q, message);
+                  break;
+                default:
+                  break;
+              }
+              break;
+            case "weather":
+              getweather(r.result.parameters['geo-city'], message);
+              break;
+            case "give":
+              switch(r.result.parameters.item){
+                case "random SOFe":
+                  var sofehex = Math.floor(Math.random()*16777215).toString(16);
+                  var sofebghex = Math.floor(Math.random()*16777215).toString(16);
+                  var rot = getrandrot();
+                  makesofe(message, sofehex, sofebghex, rot);
+                  break;
+                case "Chuck Norris fact":
+                  getchuck(message);
+                  break;
+                case "cat":
+                  getcat(message);
+                  break;
+                default:
+                  break;
+              }
+              break;
+            default:
+              break;
+          }
         }
       });
+       
+      air.on('error', function(e) {
+        console.log(e);
+        message.reply("An error occured while accessing the api.ai API!");
+      });
+       
+      air.end();
     }
 
     else if (cmd == 'help') {
@@ -295,7 +269,8 @@ client.on('message', message => {
         .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team')
         .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
         .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
-        .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.');
+        .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
+        .addField(',ai', 'Let the AI execute commands, just try it!');
       message.author.send("", { embed: help });
     }
 
@@ -325,6 +300,121 @@ if(firstrun == 1){
 
 function sendAnEmbed(message, embed){
   message.channel.send("", { embed: embed });
+}
+
+function gsessionid(message, type = "full"){
+  var date = new Date();
+  if(type == "full"){
+    return message.author.id + '-' + message.channel.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
+  }else if(type == "member"){
+    return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
+  }
+}
+
+function getweather(q, message){
+  request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + q, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var w = JSON.parse(body);
+      var fahrenheit = (w.main.temp * 9/5 + 32).toFixed(2);
+      var mph = (w.wind.speed * 2.23693629205).toFixed(1);
+      var wth = new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
+        .setDescription(w.weather[0].main)
+        .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
+        .addField('Weather description', w.weather[0].description)
+        .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
+        .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
+        .addField('Pressure', w.main.pressure + ' hPa')
+        .addField('Humidity', w.main.humidity + ' %')
+        .addField('Cloudiness', w.clouds.all + ' %')
+        .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
+      sendAnEmbed(message, wth);
+    }else{
+      message.reply('City not found or an error occured while accessing the OpenWatherMap API!');
+    }
+  });
+}
+
+function getcat(message){
+  request.get('http://random.cat/meow', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var c = JSON.parse(body);
+      var cat = new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle("Here's your random cat:")
+        .setDescription('Link: [Click Here](' + c.file + ')')
+        .setThumbnail(c.file)
+        .setFooter('Randomly generated cat link by random.cat');
+      sendAnEmbed(message, cat);
+    }else{
+      message.reply('An error occured while accessing the random.cat API!');
+    }
+  });
+}
+
+function googlepic(q, message, r = 1){
+  request.get('https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(q) + '&cx=' + config.google_cse_id + '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googlekey, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var g = JSON.parse(body);
+      var ri = Math.floor(Number(r));
+      if(ri <=0 || ri > g.items.length){
+        ri = 0;
+        message.reply('This result index is invalid!');
+      } else {
+        ri = ri - 1;
+      }
+      var gres = new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
+        .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\n,googlepic <search term> -r <number> to see the other results.')
+        .setImage(g.items[ri].link);
+      message.reply(g.searchInformation.formattedTotalResults + ' results in ' + g.searchInformation.formattedSearchTime + ' seconds:', {embed : gres});
+    }else{
+      message.reply('An error occured while accessing the Google Custom Search API!');
+    }
+  });
+}
+
+function searchpoggit(plugin, message){
+  request.get('https://poggit.pmmp.io/releases.json?name=' + plugin, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      if(body == '[]'){
+        message.reply('Error: Plugin not found!');
+      }else{
+        var pl = JSON.parse(body)[0];
+        var pinfo = new Discord.RichEmbed()
+          .setColor(Math.floor(Math.random()*16777215))
+          .setTitle(pl.name + ' (' + pl.state_name + '):')
+          .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: '+ pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
+          .setThumbnail(pl.icon_url)
+          .setTimestamp(new Date(pl.submission_date*1000))
+          .setURL(pl.html_url)
+          .setFooter('Data from poggit.pmmp.io', 'https://avatars7.githubusercontent.com/u/22367352?v=4&s=50');
+        sendAnEmbed(message, pinfo);
+      }
+    }else{
+      message.reply('An error occured while accessing the Poggit API!');
+    }
+  });
+}
+
+function getchuck(message){
+  request.get('https://api.chucknorris.io/jokes/random', function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var cn = JSON.parse(body);
+      var cj= new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle('Your Chuck Norris fact, fresh from chucknorris.io:')
+        .setDescription(cn.value)
+        .setThumbnail(cn.icon_url)
+        .setURL(cn.url)
+        .setFooter('Fact from api.chucknorris.io', 'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png');
+      sendAnEmbed(message, cj);
+    }else{
+      message.reply("You can't access the Chuck Norris API, the Chuck Norris API accesses you!");
+    }
+  });
 }
 
 function whois(m, mtn = true){
