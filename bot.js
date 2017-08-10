@@ -310,6 +310,61 @@ client.on('message', message => {
         }
         break;
 
+      case 'poll':
+        if (!args[0]) {
+          message.reply('Usage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes');
+        } else {
+          if (!isNaN(args[args.length - 1])) {
+            var time = Math.floor(args[args.length - 1]);
+            args.pop();
+          } else {
+            time = 0;
+          }
+          var newargs = args.join(' ').split('|');
+          if (newargs.length < 3) {
+            message.reply('There need to be at least 2 choices and one title!');
+          } else {
+            var choices = newargs.splice(1);
+            var poll = new Discord.RichEmbed().setTitle('Poll: ' + newargs[0]).setAuthor(message.author.username, message.author.avatarURL).setTimestamp(new Date());
+            message.channel.send({
+              embed: poll.setDescription("Hold on, processing reactions...\n**Don't vote yet!**")
+            }).then(function(msg) {
+              reactionPoll(choices.length, msg).then(function(validr) {
+                var polltext = "";
+                choices.forEach(function(c, i) {
+                  polltext += config.reaction_alphabet[i] + ' ' + c + '\n';
+                });
+                msg.edit({
+                  embed: poll.setDescription(polltext).setFooter('Click one of the reactions to vote!', 'https://himbeer.me/images/logo-monochrome.png')
+                }).then(function(msg) {
+                  if (time !== 0 && time > 5 && time < 3600) {
+                    msg.edit({
+                      embed: poll.addField("Notice:", "Poll will end in " + time + " seconds")
+                    }).then(function(msg) {
+                      client.setTimeout(function() {
+                        var result = "**Results:**\n";
+                        msg.reactions.keyArray().forEach(function(r, i) {
+                          if (validr.includes(decodeURIComponent(r), i)) {
+                            result += config.reaction_alphabet[i] + ' ' + choices[i] + ": " + (msg.reactions.array()[i].count - 2) + ' votes\n';
+                          }
+                        });
+                        poll = poll.setDescription(result).setFooter('Poll ended!', 'https://himbeer.me/images/logo-monochrome.png').setTitle('Poll: ' + newargs[0] + ' (ended)');
+                        poll.fields = [];
+                        msg.edit({
+                          embed: poll
+                        });
+                      }, time * 1000);
+                    });
+                  } else if (time !== 0) {
+                    message.reply('Time must me number between 5 and 3600!');
+                  }
+                });
+              });
+            });
+          }
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -377,21 +432,25 @@ function sendLong(text, max = 2000, limintext = max) {
   }
 }
 
-var alphabet = 'abcdefghijklmnopqrstuvwxyz';
-
 function reactionPoll(choices, message) {
-  var i = 0;
-  var fr = 0;
-  while (i < choices) {
-    if (i === 0) {
-      fr = message.react(alphabet[i]);
-    } else {
-      fr = fr.then(function() {
-        message.react(alphabet[i]);
-      });
-    }
-    i += 1;
-  }
+  return new Promise(function(resolve, reject) {
+    var reactions = config.reaction_alphabet.slice(0, choices);
+    reactions.forEach(function(rt, ind) {
+      if (ind == 0) {
+        fr = message.react(rt);
+      } else if (ind === choices - 1) {
+        fr.then(() =>
+          message.react(rt)
+        ).then(() => 
+          resolve(reactions)
+        );
+      } else {
+        fr = fr.then(() =>
+          message.react(rt)
+        );
+      }
+    });
+  });
 }
 
 function gsessionid(message, type = "full") {
