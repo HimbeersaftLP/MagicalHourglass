@@ -60,287 +60,289 @@ client.on('message', message => {
 
     var args = message.content.split(" ").slice(1);
 
-    if (cmd == 'randomsofe') {
-      var sofehex = Math.floor(Math.random()*16777215).toString(16);
-      var sofebghex = Math.floor(Math.random()*16777215).toString(16);
-      var rot = getrandrot();
-      makesofe(message, sofehex, sofebghex, rot);
-    }
+    switch(cmd){
+      case 'randomsofe':
+        var sofehex = Math.floor(Math.random()*16777215).toString(16);
+        var sofebghex = Math.floor(Math.random()*16777215).toString(16);
+        var rot = getrandrot();
+        makesofe(message, sofehex, sofebghex, rot);
+        break;
 
-    else if (cmd == 'makesofe') {
-      if (S(message.content).contains('#')) {
-        message.reply("Please don't use #'s or any other symbols for the hex codes in this command!");
-      }
-      else if (args[0] && args[1] && !args[2]){
-        var fhex = args[0];
-        var bhex = args[1];
-        makesofe(message, fhex, bhex);
-      }else if (args[0] && args[1] && args[2]){
-        var fhex = args[0];
-        var bhex = args[1];
-        var rot = args[2];
-        makesofe(message, fhex, bhex, rot);
-      }
-
-      else{
-        message.reply("Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90");
-      }
-    }
-
-    else if (cmd == 'say') {
-      message.delete();
-      message.channel.send(args.join(' '));
-    }
-
-    else if (cmd == '8ball') {
-      request.get('https://8ball.delegator.com/magic/JSON/' + args.join(' '), function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var eball = JSON.parse(body);
-          message.reply(eball.magic.answer + '\nType: ' + eball.magic.type);
-        }else{
-          message.reply('An error occured while accessing the 8ball API!');
+      case 'makesofe':
+        if (S(message.content).contains('#')) {
+          message.reply("Please don't use #'s or any other symbols for the hex codes in this command!");
         }
-      });
-    }
-
-    else if (cmd == 'weather') {
-      if(!args[0]){
-        message.reply('Usage: ,weather <city>\nExample: ,weather London');
-        return;
-      }
-      getweather(args[0], message);
-    }
-    
-    else if (cmd == 'cat') {
-      getcat(message);
-    }
-    
-    else if (cmd == 'fish') {
-      var cfish = fish[Math.floor(Math.random() * fish.length)];
-      message.reply('You caught a ' + cfish + '.');
-      message.react(cfish);
-    }
-    
-    else if (cmd == 't') {
-      message.channel.startTyping();
-      request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function (error, response, body) {
-        if (!error && response.statusCode == 200) {
-          var b = JSON.parse(body);
-          message.reply(b.botsay);
-        }else{
-          message.reply('An error occured while accessing the Program-O API!');
+        else if (args[0] && args[1] && !args[2]){
+          var fhex = args[0];
+          var bhex = args[1];
+          makesofe(message, fhex, bhex);
+        }else if (args[0] && args[1] && args[2]){
+          var fhex = args[0];
+          var bhex = args[1];
+          var rot = args[2];
+          makesofe(message, fhex, bhex, rot);
         }
-        message.channel.stopTyping();
-      });
-    }
-    
-    else if (cmd == 'whoami') {
-      sendAnEmbed(message, whois(message.member, false));
-    }
-    
-    else if (cmd == 'whois') {
-      if(message.mentions.members.first() != undefined){
-        sendAnEmbed(message, whois(message.mentions.members.first()));
-      }else{
-        message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
-      }
-    }
-    
-    else if (cmd == 'eval') {
-      if(message.author.id == config.ownerid){
-        try {
-          var evaled = eval(args.join(' '));
-          if (evaled !== null && typeof evaled === 'object') {
-            var mtd = message.channel.send(sendLong("\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
-          }else if(typeof evaled === "undefined"){
-            var mtd = message.channel.send("\`\`\`\n" + undefined + "\n\`\`\`");
+
+        else{
+          message.reply("Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90");
+        }
+        break;
+
+      case 'say':
+        message.delete();
+        message.channel.send(args.join(' '));
+        break;
+
+      case '8ball':
+        request.get('https://8ball.delegator.com/magic/JSON/' + args.join(' '), function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            var eball = JSON.parse(body);
+            message.reply(eball.magic.answer + '\nType: ' + eball.magic.type);
           }else{
-            var mtd = message.channel.send(sendLong("\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+            message.reply('An error occured while accessing the 8ball API!');
           }
-          mtd.then(function(msg){
-            if(typeof evaled !== 'undefined'){
-              if(typeof evaled.then == 'function') {
-                msg.delete(10000);
+        });
+        break;
+
+      case 'weather':
+        if(!args[0]){
+          message.reply('Usage: ,weather <city>\nExample: ,weather London');
+          return;
+        }
+        getweather(args[0], message);
+        break;
+      
+      case 'cat':
+        getcat(message);
+        break;
+      
+      case 'fish':
+        var cfish = fish[Math.floor(Math.random() * fish.length)];
+        message.reply('You caught a ' + cfish + '.');
+        message.react(cfish);
+        break;
+      
+      case 't':
+        message.channel.startTyping();
+        request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function (error, response, body) {
+          if (!error && response.statusCode == 200) {
+            var b = JSON.parse(body);
+            message.reply(b.botsay);
+          }else{
+            message.reply('An error occured while accessing the Program-O API!');
+          }
+          message.channel.stopTyping();
+        });
+        break;
+      
+      case 'whoami':
+        sendAnEmbed(message, whois(message.member, false));
+        break;
+      
+      case 'whois':
+        if(message.mentions.members.first() != undefined){
+          sendAnEmbed(message, whois(message.mentions.members.first()));
+        }else{
+          message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
+        }
+        break;
+      
+      case 'eval':
+        if(message.author.id == config.ownerid){
+          try {
+            var evaled = eval(args.join(' '));
+            if (evaled !== null && typeof evaled === 'object') {
+              var mtd = message.channel.send(sendLong("\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+            }else if(typeof evaled === "undefined"){
+              var mtd = message.channel.send("\`\`\`\n" + undefined + "\n\`\`\`");
+            }else{
+              var mtd = message.channel.send(sendLong("\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+            }
+            mtd.then(function(msg){
+              if(typeof evaled !== 'undefined'){
+                if(typeof evaled.then == 'function') {
+                  msg.delete(10000);
+                }
               }
+            });
+          } catch (err) {
+            if (err !== null && typeof err === 'object') {
+              err = util.inspect(err);
+            }
+            message.channel.send(":x: Error!\n\`\`\`\n" + err.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`").then(function(msg){
+              msg.delete(10000);
+            });
+          }
+        } else {
+          message.reply("You ain't doing that!");
+        }
+        break;
+
+      case 'reboot':
+        if(message.author.id == config.ownerid){
+          message.reply('Restarting!').then(function(){
+            console.log('Restarted by ' + message.author.username);
+            process.exit(0);
+          });
+          message.reply('Restarting!');
+        } else {
+          message.reply("You ain't doing that!");
+        }
+        break;
+
+      case 'googlepic':
+        if(!args[0]) {
+          message.reply('Usage: ,googlepic <search term>');
+        } else {
+          var oargs = JSON.parse(JSON.stringify(args));
+          if(args[args.length-2] == "-r" && !isNaN(args[args.length-1])) {
+            args.splice(args.length - 2, 2);
+            var ri = oargs[oargs.length-1];
+          } else {
+            ri = 1;
+          }
+          googlepic(args.join(' '), message, ri);
+        }
+        break;
+
+      case 'poggit':
+        if(!args[0]){
+          message.reply('Usage: ,poggit <plugin name>');
+        }else{
+          searchpoggit(args[0], message);
+        }
+        break;
+
+      case 'channels':
+        if(!args[0]){
+          message.reply('Usage: ,channels <text|voice>');
+        }else{
+          var clist = "";
+          message.guild.channels.array().forEach(function(e, i, a){
+            if(e.type==args[0]){
+              clist += " " + e.toString();
             }
           });
-        } catch (err) {
-          if (err !== null && typeof err === 'object') {
-            err = util.inspect(err);
-          }
-          message.channel.send(":x: Error!\n\`\`\`\n" + err.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`").then(function(msg){
-            msg.delete(10000);
-          });
+          if(clist == "") clist = 'No channels of this type were found';
+          message.reply(clist);
         }
-      } else {
-        message.reply("You ain't doing that!");
-      }
-    }
+        break;
 
-    else if (cmd == 'reboot') {
-      if(message.author.id == config.ownerid){
-        message.reply('Restarting!').then(function(){
-          console.log('Restarted by ' + message.author.username);
-          process.exit(0);
+      case 'chuck':
+        getchuck(message);
+        break;
+
+      case 'ai':
+        var air = ai.textRequest(args.join(' '), {
+          sessionId: gsessionid(message, "member")
         });
-        message.reply('Restarting!');
-      } else {
-        message.reply("You ain't doing that!");
-      }
-    }
 
-    else if (cmd == 'googlepic') {
-      if(!args[0]) {
-        message.reply('Usage: ,googlepic <search term>');
-      } else {
-        var oargs = JSON.parse(JSON.stringify(args));
-        if(args[args.length-2] == "-r" && !isNaN(args[args.length-1])) {
-          args.splice(args.length - 2, 2);
-          var ri = oargs[oargs.length-1];
-        } else {
-          ri = 1;
-        }
-        googlepic(args.join(' '), message, ri);
-      }
-    }
-
-    else if (cmd == 'poggit') {
-      if(!args[0]){
-        message.reply('Usage: ,poggit <plugin name>');
-      }else{
-        searchpoggit(args[0], message);
-      }
-    }
-
-    else if (cmd == 'channels'){
-      if(!args[0]){
-        message.reply('Usage: ,channels <text|voice>');
-      }else{
-        var clist = "";
-        message.guild.channels.array().forEach(function(e, i, a){
-          if(e.type==args[0]){
-            clist += " " + e.toString();
+        air.on('response', function(r) {
+          message.reply(r.result.fulfillment.speech);
+          if(!r.result.actionIncomplete){
+            switch(r.result.action){
+              case "web.search":
+                switch(r.result.parameters.engine){
+                  case "Google Images":
+                    googlepic(r.result.parameters.q, message);
+                    break;
+                  case "Poggit":
+                    searchpoggit(r.result.parameters.q, message);
+                    break;
+                  default:
+                    break;
+                }
+                break;
+              case "weather":
+                getweather(r.result.parameters['geo-city'], message);
+                break;
+              case "give":
+                switch(r.result.parameters.item){
+                  case "random SOFe":
+                    var sofehex = Math.floor(Math.random()*16777215).toString(16);
+                    var sofebghex = Math.floor(Math.random()*16777215).toString(16);
+                    var rot = getrandrot();
+                    makesofe(message, sofehex, sofebghex, rot);
+                    break;
+                  case "Chuck Norris fact":
+                    getchuck(message);
+                    break;
+                  case "cat":
+                    getcat(message);
+                    break;
+                  default:
+                    break;
+                }
+                break;
+              default:
+                break;
+            }
           }
         });
-        if(clist == "") clist = 'No channels of this type were found';
-        message.reply(clist);
-      }
-    }
+         
+        air.on('error', function(e) {
+          console.log(e);
+          message.reply("An error occured while accessing the api.ai API!");
+        });
+         
+        air.end();
+        break;
 
-    else if (cmd == 'chuck') {
-      getchuck(message);
-    }
-
-    else if (cmd == 'ai') {
-      var air = ai.textRequest(args.join(' '), {
-        sessionId: gsessionid(message, "member")
-      });
-
-      air.on('response', function(r) {
-        message.reply(r.result.fulfillment.speech);
-        if(!r.result.actionIncomplete){
-          switch(r.result.action){
-            case "web.search":
-              switch(r.result.parameters.engine){
-                case "Google Images":
-                  googlepic(r.result.parameters.q, message);
-                  break;
-                case "Poggit":
-                  searchpoggit(r.result.parameters.q, message);
-                  break;
-                default:
-                  break;
-              }
-              break;
-            case "weather":
-              getweather(r.result.parameters['geo-city'], message);
-              break;
-            case "give":
-              switch(r.result.parameters.item){
-                case "random SOFe":
-                  var sofehex = Math.floor(Math.random()*16777215).toString(16);
-                  var sofebghex = Math.floor(Math.random()*16777215).toString(16);
-                  var rot = getrandrot();
-                  makesofe(message, sofehex, sofebghex, rot);
-                  break;
-                case "Chuck Norris fact":
-                  getchuck(message);
-                  break;
-                case "cat":
-                  getcat(message);
-                  break;
-                default:
-                  break;
-              }
-              break;
-            default:
-              break;
+      case 'issue':
+        var repo; var number;
+        if(message.guild.id == '287339519500353537' && !args[1]){
+          if(!args[0]){
+            message.reply('Usage: ,issue <number> or ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+            return;
           }
+          repo = 'pmmp/pocketmine-mp';
+          number = args[0];
+        }else{
+          if(!args[1]){
+            message.reply('Usage: ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+            return;
+          }
+          repo = args[0];
+          number = args[1];
         }
-      });
-       
-      air.on('error', function(e) {
-        console.log(e);
-        message.reply("An error occured while accessing the api.ai API!");
-      });
-       
-      air.end();
-    }
-
-    else if (cmd == 'issue') {
-      var repo; var number;
-      if(message.guild.id == '287339519500353537' && !args[1]){
-        if(!args[0]){
-          message.reply('Usage: ,issue <number> or ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
-          return;
+        if(isNaN(number)){
+          message.reply('Usage: ,issue <repo> **<number>**\nExample: ,issue boxofdevs/commandshop **2**');
+        }else{
+          gitIssue(repo, Math.floor(number), message);
         }
-        repo = 'pmmp/pocketmine-mp';
-        number = args[0];
-      }else{
-        if(!args[1]){
-          message.reply('Usage: ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
-          return;
+        break;
+
+      case 'help'
+        message.reply('Sent you a DM!');
+        var help = new Discord.RichEmbed()
+          .setColor(Math.floor(Math.random()*16777215))
+          .setTitle('Help for MagicalHourglass:')
+          .setDescription('Commands:')
+          .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
+          .addField(',randomsofe', 'Generate a random SOFe avatar')
+          .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
+          .addField(',say', 'Let me say something for you...\nExample: ,say Hi')
+          .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
+          .addField(',weather', 'Get the current weather of a specific cifm OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
+          .addField(',cat', 'Get a random cat image from random.cat')
+          .addField(',fish', 'Go fishing!')
+          .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
+          .addField(',whoami', 'Get information about yourself.')
+          .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553')
+          .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team')
+          .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
+          .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
+          .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
+          .addField(',ai', 'Let the AI execute commands, just try it!')
+          .addField(',issue', 'Find an issue on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2');
+        message.author.send("", { embed: help });
+        break;
+
+      default:
+        if(message.guild.id == config.mainguild){
+          message.react('❌');
         }
-        repo = args[0];
-        number = args[1];
-      }
-      if(isNaN(number)){
-        message.reply('Usage: ,issue <repo> **<number>**\nExample: ,issue boxofdevs/commandshop **2**');
-      }else{
-        gitIssue(repo, Math.floor(number), message);
-      }
-    }
-
-    else if (cmd == 'help') {
-      message.reply('Sent you a DM!');
-      var help = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random()*16777215))
-        .setTitle('Help for MagicalHourglass:')
-        .setDescription('Commands:')
-        .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
-        .addField(',randomsofe', 'Generate a random SOFe avatar')
-        .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
-        .addField(',say', 'Let me say something for you...\nExample: ,say Hi')
-        .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
-        .addField(',weather', 'Get the current weather of a specific cifm OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
-        .addField(',cat', 'Get a random cat image from random.cat')
-        .addField(',fish', 'Go fishing!')
-        .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
-        .addField(',whoami', 'Get information about yourself.')
-        .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553')
-        .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team')
-        .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
-        .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
-        .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
-        .addField(',ai', 'Let the AI execute commands, just try it!')
-        .addField(',issue', 'Find an issue on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2');
-      message.author.send("", { embed: help });
-    }
-
-    else{
-      if(message.guild.id == config.mainguild){
-        message.react('❌');
-      }
+        break;
     }
     
     fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
