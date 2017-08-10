@@ -7,11 +7,14 @@ var imgur = require('imgur');
 imgur.setClientId(config.imgurtoken);
 
 var S = require('string');
+const removeMd = require('remove-markdown');
 
 var request = require('request');
 
 var apiai = require('apiai');
 var ai = apiai(config.apiai_token);
+
+const util = require('util')
 
 var fish = ['🐠','🐟','🐡','🐬','🐳','🐋'];
 
@@ -132,12 +135,12 @@ client.on('message', message => {
     }
     
     else if (cmd == 'whoami') {
-      sendAnEmbed(message, whois(message.author, false));
+      sendAnEmbed(message, whois(message.member, false));
     }
     
     else if (cmd == 'whois') {
       if(message.mentions.members.first() != undefined){
-        sendAnEmbed(message, whois(message.mentions.members.first().user));
+        sendAnEmbed(message, whois(message.mentions.members.first()));
       }else{
         message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
       }
@@ -145,7 +148,42 @@ client.on('message', message => {
     
     else if (cmd == 'eval') {
       if(message.author.id == config.ownerid){
-        message.channel.send(eval(args.join(' ')));
+        try {
+          var evaled = eval(args.join(' '));
+          if (evaled !== null && typeof evaled === 'object') {
+            var mtd = message.channel.send(sendLong("\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+          }else if(typeof evaled === "undefined"){
+            var mtd = message.channel.send("\`\`\`\n" + undefined + "\n\`\`\`");
+          }else{
+            var mtd = message.channel.send(sendLong("\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+          }
+          mtd.then(function(msg){
+            if(typeof evaled !== 'undefined'){
+              if(typeof evaled.then == 'function') {
+                msg.delete(10000);
+              }
+            }
+          });
+        } catch (err) {
+          if (err !== null && typeof err === 'object') {
+            err = util.inspect(err);
+          }
+          message.channel.send(":x: Error!\n\`\`\`\n" + err.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`").then(function(msg){
+            msg.delete(10000);
+          });
+        }
+      } else {
+        message.reply("You ain't doing that!");
+      }
+    }
+
+    else if (cmd == 'reboot') {
+      if(message.author.id == config.ownerid){
+        message.reply('Restarting!').then(function(){
+          console.log('Restarted by ' + message.author.username);
+          process.exit(0);
+        });
+        message.reply('Restarting!');
       } else {
         message.reply("You ain't doing that!");
       }
@@ -249,6 +287,30 @@ client.on('message', message => {
       air.end();
     }
 
+    else if (cmd == 'issue') {
+      var repo; var number;
+      if(message.guild.id == '287339519500353537' && !args[1]){
+        if(!args[0]){
+          message.reply('Usage: ,issue <number> or ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+          return;
+        }
+        repo = 'pmmp/pocketmine-mp';
+        number = args[0];
+      }else{
+        if(!args[1]){
+          message.reply('Usage: ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+          return;
+        }
+        repo = args[0];
+        number = args[1];
+      }
+      if(isNaN(number)){
+        message.reply('Usage: ,issue <repo> **<number>**\nExample: ,issue boxofdevs/commandshop **2**');
+      }else{
+        gitIssue(repo, Math.floor(number), message);
+      }
+    }
+
     else if (cmd == 'help') {
       message.reply('Sent you a DM!');
       var help = new Discord.RichEmbed()
@@ -260,7 +322,7 @@ client.on('message', message => {
         .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
         .addField(',say', 'Let me say something for you...\nExample: ,say Hi')
         .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
-        .addField(',weather', 'Get the current weather of a specific city from OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
+        .addField(',weather', 'Get the current weather of a specific cifm OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
         .addField(',cat', 'Get a random cat image from random.cat')
         .addField(',fish', 'Go fishing!')
         .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
@@ -270,13 +332,14 @@ client.on('message', message => {
         .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
         .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
         .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
-        .addField(',ai', 'Let the AI execute commands, just try it!');
+        .addField(',ai', 'Let the AI execute commands, just try it!')
+        .addField(',issue', 'Find an issue on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2');
       message.author.send("", { embed: help });
     }
 
     else{
       if(message.guild.id == config.mainguild){
-        message.react('❌');
+        message.react('❄1�7');
       }
     }
     
@@ -300,6 +363,30 @@ if(firstrun == 1){
 
 function sendAnEmbed(message, embed){
   message.channel.send("", { embed: embed });
+}
+
+function sendLong(text, max = 2000, limintext = max){
+  if(text.length > max){
+    return 'Message is too long to send (' + text.length + ' of ' + limintext + ' chars)';
+  }else{
+    return text;
+  }
+}
+
+var alphabet = 'abcdefghijklmnopqrstuvwxyz';
+function reactionPoll(choices, message) {
+  var i = 0;
+  var fr = 0;
+  while (i < choices) {
+    if (i === 0) {
+      fr = message.react(alphabet[i]);
+    } else {
+      fr = fr.then(function() {
+        message.react(alphabet[i]);
+      });
+    }
+    i += 1;
+  }
 }
 
 function gsessionid(message, type = "full"){
@@ -417,7 +504,48 @@ function getchuck(message){
   });
 }
 
-function whois(m, mtn = true){
+function gitIssue(repo, number, message){
+  request.get({
+    url: 'https://api.github.com/repos/' + repo + '/issues/' + encodeURIComponent(number),
+    headers: {
+      'User-Agent': 'MagicalHourglass',
+      'Accept': 'application/vnd.github.squirrel-girl-preview'
+    }
+  }, function (error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var g = JSON.parse(body);
+      var ilabels = "";
+      g.labels.forEach(function(label, i){
+        ilabels += label.name + ((i !== g.labels.length-1) ? ', ' : "");
+      });
+      var gissue = new Discord.RichEmbed()
+        .setColor(Math.floor(Math.random()*16777215))
+        .setTitle(((typeof g.pull_request == "undefined") ? 'Issue' : 'Pull request') + ' #' + number + ': ' + g.title)
+        .addField('Information:', '__Created by__ ' + g.user.login + '\n__State:__ ' + g.state + '\n__Labels:__ ' + ((g.labels !== []) ? ilabels : 'none') + '\n__Comments:__ ' + g.comments + '\n__Locked:__ ' + g.locked + '\n__Reactions:__\n' + g.reactions['+1'] + ' 👍 | ' + g.reactions['-1'] + ' 👎 | ' + g.reactions.laugh + ' 😄 | ' + g.reactions.confused + ' 😕 | ' + g.reactions.heart + ' ❤️ | ' + g.reactions.hooray + ' 🎉')
+        .setThumbnail(g.user.avatar_url)
+        .setTimestamp(new Date(g.created_at))
+        .setURL(g.html_url)
+        .setFooter('Data from api.github.com', 'https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
+      if(removeMd(g.body).length > 2045){
+        gissue.addField('Notice:', 'The Description has been shortened to fit into an embed');
+        gissue.setDescription((removeMd(g.body).substring(0, 2045)) + '...');
+      }else{
+        gissue.setDescription(removeMd(g.body));
+      }
+      sendAnEmbed(message, gissue);
+    }else{
+      message.reply('An error occured while accessing the GitHub API' + ((JSON.parse(body).message === "Not Found") ? ': Repo or issue not found!' : '!'));
+    }
+  });
+}
+
+function whois(member, mtn = true){
+  var m = member.user;
+  var rls = "";
+  member.roles.array().forEach(function(r) {
+    rls += r.name + ', ';
+  });
+message.channel.send(rls);
   var emb =  new Discord.RichEmbed()
         .setColor(Math.floor(Math.random()*16777215))
         .setTitle('Information about the user ' + m.username + ':')
@@ -426,7 +554,8 @@ function whois(m, mtn = true){
         .addField('Discord Tag', m.tag)
         .addField('Avatar URL', m.displayAvatarURL)
         .addField('Created at', m.createdAt)
-        .addField('Bot?', m.bot);
+        .addField('Bot?', m.bot)
+        .addField('Roles', rls);
         if(m.presence.game != null){
           emb.addField('Game', m.presence.game.name);
         }else{
