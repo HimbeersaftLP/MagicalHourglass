@@ -339,7 +339,7 @@ client.on('message', message => {
 
     else{
       if(message.guild.id == config.mainguild){
-        message.react('❄1�7');
+        message.react('❌');
       }
     }
     
