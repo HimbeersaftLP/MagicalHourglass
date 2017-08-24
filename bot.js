@@ -3,6 +3,8 @@ const config = require('./config.json');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
+//const extras = require('./extras.js'); (wip)
+
 var imgur = require('imgur');
 imgur.setClientId(config.imgurtoken);
 
@@ -17,6 +19,7 @@ var ai = apiai(config.apiai_token);
 const util = require('util')
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
+const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
 
 var firstrun = 1;
 
@@ -38,13 +41,12 @@ client.on('ready', () => {
 });
 
 client.on('message', message => {
+  if (message.author.bot) return;
+  if (config.blockedusers.includes(message.author.id)) return;
   if (S(message.content).startsWith(config.prefix)) {
 
-    if (message.author.bot) return;
-    if (config.blockedusers.includes(message.author.id)) return;
-
     var cmd = message.content.split(" ")[0];
-    cmd = S(cmd).chompLeft(config.prefix).s;
+    cmd = S(cmd).chompLeft(config.prefix).s.toLowerCase();
 
     if (config.blocked.includes(cmd)) return;
 
@@ -214,12 +216,11 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply('Usage: ,channels <text|voice>');
         } else {
-          var clist = "";
-          message.guild.channels.array().forEach(function(e, i, a) {
-            if (e.type == args[0]) {
-              clist += " " + e.toString();
+          var clist = message.guild.channels.map((c) => {
+            if(c.type == args[0].toLowerCase()){
+              return c.toString();
             }
-          });
+          }).join(' ');
           if (clist == "") clist = 'No channels of this type were found';
           message.reply(clist);
         }
@@ -286,6 +287,7 @@ client.on('message', message => {
         break;
 
       case 'issue':
+      case 'pr':
         var repo;
         var number;
         if (message.guild.id == '287339519500353537' && !args[1]) {
@@ -322,7 +324,9 @@ client.on('message', message => {
           }
           var newargs = args.join(' ').split('|');
           if (newargs.length < 3) {
-            message.reply('There need to be at least 2 choices and one title!');
+            message.reply('There need to be at least 2 choices and a title!');
+          } else if (newargs.length > 21) {
+            message.reply("Because of limitation in reaction count on Discord you can't have more than 20 choices on a poll, sorry.");
           } else {
             var choices = newargs.splice(1);
             var poll = new Discord.RichEmbed().setTitle('Poll: ' + newargs[0]).setAuthor(message.author.username, message.author.avatarURL).setTimestamp(new Date());
@@ -343,10 +347,8 @@ client.on('message', message => {
                     }).then(function(msg) {
                       client.setTimeout(function() {
                         var result = "**Results:**\n";
-                        msg.reactions.keyArray().forEach(function(r, i) {
-                          if (validr.includes(decodeURIComponent(r), i)) {
-                            result += config.reaction_alphabet[i] + ' ' + choices[i] + ": " + (msg.reactions.array()[i].count - 2) + ' votes\n';
-                          }
+                        validr.forEach(function(r, i) {
+                          result += r + ' ' + choices[i] + ": " + (msg.reactions.get(encodeURIComponent(r)).count - 2) + ' votes\n';
                         });
                         poll = poll.setDescription(result).setFooter('Poll ended!', 'https://himbeer.me/images/logo-monochrome.png').setTitle('Poll: ' + newargs[0] + ' (ended)');
                         poll.fields = [];
@@ -363,6 +365,31 @@ client.on('message', message => {
             });
           }
         }
+        break;
+
+      case 'info':
+      case 'status':
+        var seconds = process.uptime();
+        days = Math.floor(seconds / 86400);
+        seconds %= 86400;
+        hrs = Math.floor(seconds / 3600);
+        seconds %= 3600;
+        mins = Math.floor(seconds / 60);
+        secs = seconds % 60;
+        var uptime = days + ' Days, ' + hrs + ' Hours, ' + mins + ' Minutes and ' + Math.round(secs) + ' Seconds';
+        var status = new Discord.RichEmbed()
+          .setColor(Math.floor(Math.random() * 16777215))
+          .setTitle('MagicalHourglass Information:')
+          .setDescription('MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.')
+          .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
+          .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
+          .addField('Author:', 'HimbeersaftLP#8553')
+          .addField('Servers:', client.guilds.size)
+          .addField('Channels:', client.channels.size)
+          .addField('Cached Users:', client.users.size)
+          .addField('Uptime:', uptime)
+          .addField('RAM Usage:', Math.round(process.memoryUsage().rss / 10485.76) / 100 + ' MB');
+        sendAnEmbed(message, status);
         break;
 
       case 'help':
@@ -387,7 +414,9 @@ client.on('message', message => {
           .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
           .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
           .addField(',ai', 'Let the AI execute commands, just try it!')
-          .addField(',issue', 'Find an issue on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2');
+          .addField(',issue or ,pr', 'Find an issue/pull request on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2')
+          .addField(',poll', 'Make a poll using reacti!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
+          .addField(',info or ,status', 'Display information and stats about this bot.');
         message.author.send("", {
           embed: help
         });
@@ -402,6 +431,16 @@ client.on('message', message => {
 
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
+  } else if (typeof message.content.match(twitterregex) !== 'null' && typeof message.content.match(twitterregex) !== 'undefined') {
+    var alllinks = "";
+    message.content.match(twitterregex).forEach(function(tlink) {
+      if (tlink !== 'https://mobile.twitter.com' && tlink !== 'http://mobile.twitter.com') {
+        alllinks += tlink.replace('mobile.twitter.com', 'twitter.com') + '\n';
+      } else {
+        return;
+      }
+    });
+    if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   }
 });
 
@@ -607,11 +646,7 @@ function gitIssue(repo, number, message) {
 
 function whois(member, mtn = true) {
   var m = member.user;
-  var rls = "";
-  member.roles.array().forEach(function(r) {
-    rls += r.name + ', ';
-  });
-  message.channel.send(rls);
+  var rls = member.roles.map((r) => r.name).join(', ');
   var emb = new Discord.RichEmbed()
     .setColor(Math.floor(Math.random() * 16777215))
     .setTitle('Information about the user ' + m.username + ':')
