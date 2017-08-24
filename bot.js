@@ -217,7 +217,7 @@ client.on('message', message => {
           message.reply('Usage: ,channels <text|voice>');
         } else {
           var clist = message.guild.channels.map((c) => {
-            if(c.type == args[0].toLowerCase()){
+            if (c.type == args[0].toLowerCase()) {
               return c.toString();
             }
           }).join(' ');
@@ -480,7 +480,7 @@ function reactionPoll(choices, message) {
       } else if (ind === choices - 1) {
         fr.then(() =>
           message.react(rt)
-        ).then(() => 
+        ).then(() =>
           resolve(reactions)
         );
       } else {
