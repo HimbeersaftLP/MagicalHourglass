@@ -1,4 +1,6 @@
 {
+  "__NOTICE:": "Copy this to config.json and edit your details",
+  
   "prefix": ",",
   
   "discordtoken": "Your Discord bot accounts token",
