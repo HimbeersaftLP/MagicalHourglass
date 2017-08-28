@@ -9,10 +9,11 @@
     "erlpack": "^0.1.0",
     "forever": "^0.15.3",
     "imgur": "^0.2.1",
+    "remove-markdown": "^0.2.2",
     "request": "^2.81.0",
     "string": "^3.3.3",
     "uws": "^0.14.5",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {},
   "scripts": {
