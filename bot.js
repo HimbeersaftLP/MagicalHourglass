@@ -3,20 +3,22 @@ const config = require('./config.json');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-//const extras = require('./extras.js'); (wip)
+const extras = require('./extras.js');
 
 var imgur = require('imgur');
 imgur.setClientId(config.imgurtoken);
 
 var S = require('string');
 const removeMd = require('remove-markdown');
+var parseXml = require('xml2js').parseString;
 
 var request = require('request');
 
 var apiai = require('apiai');
 var ai = apiai(config.apiai_token);
 
-const util = require('util')
+const util = require('util');
+const crypto = require('crypto');
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
@@ -93,14 +95,8 @@ client.on('message', message => {
         break;
 
       case '8ball':
-        request.get('https://8ball.delegator.com/magic/JSON/' + args.join(' '), function(error, response, body) {
-          if (!error && response.statusCode == 200) {
-            var eball = JSON.parse(body);
-            message.reply(eball.magic.answer + '\nType: ' + eball.magic.type);
-          } else {
-            message.reply('An error occured while accessing the 8ball API!');
-          }
-        });
+        var rnd = Math.floor(Math.random() * config.eightball.length);
+        message.reply(config.eightball[rnd]);
         break;
 
       case 'weather':
@@ -135,12 +131,12 @@ client.on('message', message => {
         break;
 
       case 'whoami':
-        sendAnEmbed(message, whois(message.member, false));
+        sendEmbed(message.channel, whois(message.member, false));
         break;
 
       case 'whois':
         if (message.mentions.members.first() != undefined) {
-          sendAnEmbed(message, whois(message.mentions.members.first()));
+          sendEmbed(message.channel, whois(message.mentions.members.first()));
         } else {
           message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
         }
@@ -149,13 +145,18 @@ client.on('message', message => {
       case 'eval':
         if (message.author.id == config.ownerid) {
           try {
+            var estart = process.hrtime();
             var evaled = eval(args.join(' '));
-            if (evaled !== null && typeof evaled === 'object') {
-              var mtd = message.channel.send(sendLong("\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+            var eend = process.hrtime(estart);
+            var tm = '*Executed in ' + (eend[0] * 1000 + eend[1] / 1000000) + ' ms.*\n';
+            if (typeof evaled === 'object') {
+              var mtd = message.channel.send(sendLong(tm + "\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
             } else if (typeof evaled === "undefined") {
-              var mtd = message.channel.send("\`\`\`\n" + undefined + "\n\`\`\`");
+              var mtd = message.channel.send(tm + "\`\`\`\n" + typeof undefined + "\n\`\`\`");
+            } else if (evaled == null) {
+              var mtd = message.channel.send(tm + "\`\`\`\n" + null + "\n\`\`\`");
             } else {
-              var mtd = message.channel.send(sendLong("\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+              var mtd = message.channel.send(sendLong(tm + "\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
             }
             mtd.then(function(msg) {
               if (typeof evaled !== 'undefined') {
@@ -193,6 +194,7 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply('Usage: ,googlepic <search term>');
         } else {
+          message.channel.startTyping();
           var oargs = JSON.parse(JSON.stringify(args));
           if (args[args.length - 2] == "-r" && !isNaN(args[args.length - 1])) {
             args.splice(args.length - 2, 2);
@@ -201,6 +203,7 @@ client.on('message', message => {
             ri = 1;
           }
           googlepic(args.join(' '), message, ri);
+          message.channel.stopTyping();
         }
         break;
 
@@ -208,7 +211,9 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply('Usage: ,poggit <plugin name>');
         } else {
+          message.channel.startTyping();
           searchpoggit(args[0], message);
+          message.channel.stopTyping();
         }
         break;
 
@@ -231,6 +236,7 @@ client.on('message', message => {
         break;
 
       case 'ai':
+        message.channel.startTyping();
         var air = ai.textRequest(args.join(' '), {
           sessionId: gsessionid(message, "member")
         });
@@ -241,7 +247,7 @@ client.on('message', message => {
             switch (r.result.action) {
               case "web.search":
                 switch (r.result.parameters.engine) {
-                  case "Google Images":
+                  case "Google Image":
                     googlepic(r.result.parameters.q, message);
                     break;
                   case "Poggit":
@@ -284,6 +290,7 @@ client.on('message', message => {
         });
 
         air.end();
+        message.channel.stopTyping();
         break;
 
       case 'issue':
@@ -308,7 +315,9 @@ client.on('message', message => {
         if (isNaN(number)) {
           message.reply('Usage: ,issue <repo> **<number>**\nExample: ,issue boxofdevs/commandshop **2**');
         } else {
+          message.channel.startTyping();
           gitIssue(repo, Math.floor(number), message);
+          message.channel.stopTyping();
         }
         break;
 
@@ -377,6 +386,13 @@ client.on('message', message => {
         mins = Math.floor(seconds / 60);
         secs = seconds % 60;
         var uptime = days + ' Days, ' + hrs + ' Hours, ' + mins + ' Minutes and ' + Math.round(secs) + ' Seconds';
+        var stats = new extras.SubFields()
+          .addField('Servers', client.guilds.size)
+          .addField('Channels', client.channels.size)
+          .addField('Cached Users', client.users.size)
+          .addField('Uptime', uptime)
+          .addField('RAM Usage', Math.round(process.memoryUsage().rss / 10485.76) / 100 + ' MB')
+          .toString();
         var status = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('MagicalHourglass Information:')
@@ -384,12 +400,8 @@ client.on('message', message => {
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
           .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
           .addField('Author:', 'HimbeersaftLP#8553')
-          .addField('Servers:', client.guilds.size)
-          .addField('Channels:', client.channels.size)
-          .addField('Cached Users:', client.users.size)
-          .addField('Uptime:', uptime)
-          .addField('RAM Usage:', Math.round(process.memoryUsage().rss / 10485.76) / 100 + ' MB');
-        sendAnEmbed(message, status);
+          .addField('Stats:', stats);
+        sendEmbed(message.channel, status);
         break;
 
       case 'help':
@@ -431,7 +443,7 @@ client.on('message', message => {
 
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
-  } else if (typeof message.content.match(twitterregex) !== 'null' && typeof message.content.match(twitterregex) !== 'undefined') {
+  } else if (message.content.match(twitterregex) !== null) {
     var alllinks = "";
     message.content.match(twitterregex).forEach(function(tlink) {
       if (tlink !== 'https://mobile.twitter.com' && tlink !== 'http://mobile.twitter.com') {
@@ -457,8 +469,8 @@ if (firstrun == 1) {
   console.log("Not logging in again for preventing bot token reset!");
 }
 
-function sendAnEmbed(message, embed) {
-  message.channel.send("", {
+function sendEmbed(channel, embed) {
+  channel.send({
     embed: embed
   });
 }
@@ -519,7 +531,7 @@ function getweather(q, message) {
         .addField('Humidity', w.main.humidity + ' %')
         .addField('Cloudiness', w.clouds.all + ' %')
         .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
-      sendAnEmbed(message, wth);
+      sendEmbed(message.channel, wth);
     } else {
       message.reply('City not found or an error occured while accessing the OpenWatherMap API!');
     }
@@ -534,9 +546,9 @@ function getcat(message) {
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle("Here's your random cat:")
         .setDescription('Link: [Click Here](' + c.file + ')')
-        .setThumbnail(c.file)
+        .setImage(c.file)
         .setFooter('Randomly generated cat link by random.cat');
-      sendAnEmbed(message, cat);
+      sendEmbed(message.channel, cat);
     } else {
       message.reply('An error occured while accessing the random.cat API!');
     }
@@ -583,7 +595,7 @@ function searchpoggit(plugin, message) {
           .setTimestamp(new Date(pl.submission_date * 1000))
           .setURL(pl.html_url)
           .setFooter('Data from poggit.pmmp.io', 'https://avatars7.githubusercontent.com/u/22367352?v=4&s=50');
-        sendAnEmbed(message, pinfo);
+        sendEmbed(message.channel, pinfo);
       }
     } else {
       message.reply('An error occured while accessing the Poggit API!');
@@ -602,7 +614,7 @@ function getchuck(message) {
         .setThumbnail(cn.icon_url)
         .setURL(cn.url)
         .setFooter('Fact from api.chucknorris.io', 'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png');
-      sendAnEmbed(message, cj);
+      sendEmbed(message.channel, cj);
     } else {
       message.reply("You can't access the Chuck Norris API, the Chuck Norris API accesses you!");
     }
@@ -637,7 +649,7 @@ function gitIssue(repo, number, message) {
       } else {
         gissue.setDescription(removeMd(g.body));
       }
-      sendAnEmbed(message, gissue);
+      sendEmbed(message.channel, gissue);
     } else {
       message.reply('An error occured while accessing the GitHub API' + ((JSON.parse(body).message === "Not Found") ? ': Repo or issue not found!' : '!'));
     }
@@ -647,9 +659,7 @@ function gitIssue(repo, number, message) {
 function whois(member, mtn = true) {
   var m = member.user;
   var rls = member.roles.map((r) => r.name).join(', ');
-  var emb = new Discord.RichEmbed()
-    .setColor(Math.floor(Math.random() * 16777215))
-    .setTitle('Information about the user ' + m.username + ':')
+  var uemb = new extras.UnrealEmbed()
     .addField('Username', m.username)
     .addField('ID', m.id)
     .addField('Discord Tag', m.tag)
@@ -658,18 +668,17 @@ function whois(member, mtn = true) {
     .addField('Bot?', m.bot)
     .addField('Roles', rls);
   if (m.presence.game != null) {
-    emb.addField('Game', m.presence.game.name);
+    uemb.addField('Game', m.presence.game.name);
   } else {
-    emb.addField('Game', 'None');
+    uemb.addField('Game', 'None');
   }
-  emb.addField('Status', m.presence.status);
+  uemb.addField('Status', m.presence.status);
   if (m.lastMessage != null && mtn == true) {
-    emb.addField('Last Message', m.lastMessage.cleanContent);
+    uemb.addField('Last Message', m.lastMessage.cleanContent);
   } else if (mtn == true) {
-    emb.addField('Last Message', 'Not found');
+    uemb.addField('Last Message', 'Not found');
   }
-  emb.setThumbnail(m.displayAvatarURL);
-  return emb;
+  return extras.embed('Information about the user ' + m.username + ':', uemb.toString(), m.displayAvatarURL);
 }
 
 function getrandrot() {
@@ -686,6 +695,7 @@ function getrandrot() {
 }
 
 function makesofe(message, hex, bghex, rot = 0) {
+  message.channel.startTyping();
   var sofe = 'https://himbeer.me/sofeavatars/sofeavatar.php?hex=' + hex + '&bghex=' + bghex + '&rot=' + rot;
   imgur.uploadUrl(sofe)
     .then(function(json) {
@@ -694,12 +704,14 @@ function makesofe(message, hex, bghex, rot = 0) {
       var sofembed = new Discord.RichEmbed()
         .setColor(parseInt(hex, 16))
         .setTitle('Your SOFe avatar has been generated!')
-        .setDescription(sofe)
+        .setDescription('API Link: ' + sofe + '\n\nImgur Link: ' + soflink)
         .setThumbnail(soflink);
-      message.channel.sendEmbed(sofembed);
+      sendEmbed(message.channel, sofembed);
+      message.channel.stopTyping();
     })
     .catch(function(err) {
       console.error('Imgur upload error: ' + err.message);
-      message.reply("Couldn't upload image to imgur, here's a direct link: " + sofe);
+      message.reply("Couldn't upload image to imgur (for the preview), here's a direct link: " + sofe);
+      message.channel.stopTyping();
     });
 }
