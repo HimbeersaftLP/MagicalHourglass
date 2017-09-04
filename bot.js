@@ -404,6 +404,24 @@ client.on('message', message => {
         sendEmbed(message.channel, status);
         break;
 
+      case 'convert':
+        if (!args[2] |isNaN(args[0])) {
+          message.reply('Usage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd');
+        } else {
+          currencyConvert(args[0], args[1], args[2]).then(function(conv){
+          if (isNaN(conv)) {
+            var desc = conv;
+          } else {
+            var desc = 'Converted from: ' + args[1].toUpperCase() + '\nConversion result: ' + (Math.round(conv * 10000) / 10000) + ' ' + args[2].toUpperCase();
+          }
+          var convres = extras.embed('Conversion result:', desc, 'http://i.imgur.com/qbeZJNk.png')
+            .setFooter('api.cryptonator.com', 'http://i.imgur.com/qbeZJNk.png')
+            .setURL('https://www.cryptonator.com/');
+          sendEmbed(message.channel, convres);
+          });
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -427,8 +445,9 @@ client.on('message', message => {
           .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
           .addField(',ai', 'Let the AI execute commands, just try it!')
           .addField(',issue or ,pr', 'Find an issue/pull request on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2')
-          .addField(',poll', 'Make a poll using reacti!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
-          .addField(',info or ,status', 'Display information and stats about this bot.');
+          .addField(',poll', 'Make a poll using reactions!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
+          .addField(',info or ,status', 'Display information and stats about this bot.')
+          .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd');
         message.author.send("", {
           embed: help
         });
@@ -653,6 +672,23 @@ function gitIssue(repo, number, message) {
     } else {
       message.reply('An error occured while accessing the GitHub API' + ((JSON.parse(body).message === "Not Found") ? ': Repo or issue not found!' : '!'));
     }
+  });
+}
+
+function currencyConvert(amount, from, to) {
+  return new Promise(function(resolve) {
+  request.get('https://api.cryptonator.com/api/ticker/' + encodeURIComponent(from) + '-' + encodeURIComponent(to), function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var con = JSON.parse(body);
+      if (con.success === false) {
+        resolve('Error: ' + con.error);
+      } else {
+        resolve(amount * con.ticker.price);
+      }
+    } else {
+      resolve('An error occured while accessing the Cryptonator API!');
+    }
+  });
   });
 }
 
