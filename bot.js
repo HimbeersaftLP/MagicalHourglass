@@ -405,19 +405,19 @@ client.on('message', message => {
         break;
 
       case 'convert':
-        if (!args[2] |isNaN(args[0])) {
+        if (!args[2] | isNaN(args[0])) {
           message.reply('Usage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd');
         } else {
-          currencyConvert(args[0], args[1], args[2]).then(function(conv){
-          if (isNaN(conv)) {
-            var desc = conv;
-          } else {
-            var desc = 'Converted from: ' + args[1].toUpperCase() + '\nConversion result: ' + (Math.round(conv * 10000) / 10000) + ' ' + args[2].toUpperCase();
-          }
-          var convres = extras.embed('Conversion result:', desc, 'http://i.imgur.com/qbeZJNk.png')
-            .setFooter('api.cryptonator.com', 'http://i.imgur.com/qbeZJNk.png')
-            .setURL('https://www.cryptonator.com/');
-          sendEmbed(message.channel, convres);
+          currencyConvert(args[0], args[1], args[2]).then(function(conv) {
+            if (isNaN(conv)) {
+              var desc = conv;
+            } else {
+              var desc = 'Converted from: ' + args[1].toUpperCase() + '\nConversion result: ' + (Math.round(conv * 10000) / 10000) + ' ' + args[2].toUpperCase();
+            }
+            var convres = extras.embed('Conversion result:', desc, 'http://i.imgur.com/qbeZJNk.png')
+              .setFooter('api.cryptonator.com', 'http://i.imgur.com/qbeZJNk.png')
+              .setURL('https://www.cryptonator.com/');
+            sendEmbed(message.channel, convres);
           });
         }
         break;
@@ -677,18 +677,18 @@ function gitIssue(repo, number, message) {
 
 function currencyConvert(amount, from, to) {
   return new Promise(function(resolve) {
-  request.get('https://api.cryptonator.com/api/ticker/' + encodeURIComponent(from) + '-' + encodeURIComponent(to), function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var con = JSON.parse(body);
-      if (con.success === false) {
-        resolve('Error: ' + con.error);
+    request.get('https://api.cryptonator.com/api/ticker/' + encodeURIComponent(from) + '-' + encodeURIComponent(to), function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var con = JSON.parse(body);
+        if (con.success === false) {
+          resolve('Error: ' + con.error);
+        } else {
+          resolve(amount * con.ticker.price);
+        }
       } else {
-        resolve(amount * con.ticker.price);
+        resolve('An error occured while accessing the Cryptonator API!');
       }
-    } else {
-      resolve('An error occured while accessing the Cryptonator API!');
-    }
-  });
+    });
   });
 }
 
