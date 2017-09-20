@@ -350,14 +350,18 @@ client.on('message', message => {
                 msg.edit({
                   embed: poll.setDescription(polltext).setFooter('Click one of the reactions to vote!', 'https://himbeer.me/images/logo-monochrome.png')
                 }).then(function(msg) {
-                  if (time !== 0 && time > 5 && time < 3600) {
+                  if (time !== 0 && time >= 5 && time <= 3600) {
                     msg.edit({
                       embed: poll.addField("Notice:", "Poll will end in " + time + " seconds")
                     }).then(function(msg) {
                       client.setTimeout(function() {
                         var result = "**Results:**\n";
                         validr.forEach(function(r, i) {
-                          result += r + ' ' + choices[i] + ": " + (msg.reactions.get(encodeURIComponent(r)).count - 2) + ' votes\n';
+                          try {
+                            result += r + ' ' + choices[i] + ": " + (msg.reactions.get(r).count - 1) + ' votes\n';
+                          } catch (err) {
+                            result += 'Error\n';
+                          }
                         });
                         poll = poll.setDescription(result).setFooter('Poll ended!', 'https://himbeer.me/images/logo-monochrome.png').setTitle('Poll: ' + newargs[0] + ' (ended)');
                         poll.fields = [];
@@ -369,6 +373,17 @@ client.on('message', message => {
                   } else if (time !== 0) {
                     message.reply('Time must me number between 5 and 3600!');
                   }
+                });
+              }).catch(err => {
+                var errexplain = '';
+                if (err.message == 'Maximum number of reactions reached (20)') {
+                  errexplain = "Reason: There were already 20 reactions on that message (can't fit more than 20 per message).\nHint: If you are a server owner you can remove the permission to react from other people while the bot is reacting.";
+                } else {
+                  console.log(err);
+                  errexplain = "Unknown error, this has been logged and the bot creator will take a look at the issue";
+                }
+                msg.edit({
+                  embed: poll.setDescription('There was an error while processing reactions:\n' + errexplain).setFooter("I'm sorry :/")
                 });
               });
             });
@@ -511,12 +526,16 @@ function reactionPoll(choices, message) {
       } else if (ind === choices - 1) {
         fr.then(() =>
           message.react(rt)
+        ).catch((err) =>
+          reject(err)
         ).then(() =>
           resolve(reactions)
         );
       } else {
         fr = fr.then(() =>
           message.react(rt)
+        ).catch((err) => 
+          reject(err)
         );
       }
     });
