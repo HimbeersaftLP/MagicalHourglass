@@ -22,6 +22,8 @@ const crypto = require('crypto');
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
+const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)/;
+const fileendregex = /.*\.(.*)/;
 
 var firstrun = 1;
 
@@ -487,6 +489,22 @@ client.on('message', message => {
       }
     });
     if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
+  } else if (githubregex.test(message.content)) {
+    var match = githubregex.exec(message.content);
+    request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body){
+      if (!error && response.statusCode == 200) {
+        var lines = body.split('\n');
+        if (typeof lines[match[3] - 1] === 'undefined') return;
+        var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
+        var codemsg = `Showing lines ${match[3] - 5} - ${Number(match[3]) + 5} of ${match[2]}` + '```'+ lang + '\n';
+        for (i = match[3] - 5; i < Number(match[3]) + 6; i++) {
+            if (typeof lines[i - 1] !== 'undefined') {
+                codemsg += `${i} ${lines[i - 1]}\n`
+            }
+        }
+        message.reply(codemsg + '```');
+      }
+    });
   }
 });
 
