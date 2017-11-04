@@ -491,16 +491,16 @@ client.on('message', message => {
     if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   } else if (githubregex.test(message.content)) {
     var match = githubregex.exec(message.content);
-    request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body){
+    request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body) {
       if (!error && response.statusCode == 200) {
         var lines = body.split('\n');
         if (typeof lines[match[3] - 1] === 'undefined') return;
         var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
-        var codemsg = `Showing lines ${match[3] - 5} - ${Number(match[3]) + 5} of ${match[2]}` + '```'+ lang + '\n';
+        var codemsg = `Showing lines ${match[3] - 5} - ${Number(match[3]) + 5} of ${match[2]}` + '```' + lang + '\n';
         for (i = match[3] - 5; i < Number(match[3]) + 6; i++) {
-            if (typeof lines[i - 1] !== 'undefined') {
-                codemsg += `${i} ${lines[i - 1]}\n`
-            }
+          if (typeof lines[i - 1] !== 'undefined') {
+            codemsg += `${i} ${lines[i - 1]}\n`
+          }
         }
         message.reply(codemsg + '```');
       }
@@ -552,7 +552,7 @@ function reactionPoll(choices, message) {
       } else {
         fr = fr.then(() =>
           message.react(rt)
-        ).catch((err) => 
+        ).catch((err) =>
           reject(err)
         );
       }
