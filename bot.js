@@ -29,11 +29,6 @@ var firstrun = 1;
 
 var readyspam = 0;
 
-const knowncommands = ['randomsofe','makesofe','say','8ball','weather','cat',
-                       'fish','t','whoami','whois','eval','reboot','googlepic',
-                       'poggit','channels','chuck','ai','issue','pr','poll',
-                       'info','status','convert','help'];
-
 client.on('ready', () => {
   client.user.setStatus('online');
   console.log('Everything connected!');
@@ -66,11 +61,10 @@ client.on('message', message => {
       if (!fish.includes(juice)) {
         fish.push(juice);
       }
-      if(knowncommands.includes(cmd)) message.react(juice);
     }
 
     var args = message.content.split(" ").slice(1);
-    
+    var commandsuccess = true;
     switch (cmd) {
       case 'randomsofe':
         var sofehex = Math.floor(Math.random() * 16777215).toString(16);
@@ -474,8 +468,13 @@ client.on('message', message => {
           embed: help
         });
         break;
+      default:
+        if (message.guild.id == config.mainguild) {
+          commandsuccess = false;
+        }
+        break;
     }
-
+    if(!commandsuccess) message.react(juice);
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
   } else if (message.content.match(twitterregex) !== null) {
