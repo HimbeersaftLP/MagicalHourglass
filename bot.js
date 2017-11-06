@@ -469,12 +469,6 @@ client.on('message', message => {
           embed: help
         });
         break;
-
-      default:
-        if (message.guild.id == config.mainguild) {
-          message.react('❌');
-        }
-        break;
     }
 
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
