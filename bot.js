@@ -61,11 +61,10 @@ client.on('message', message => {
       if (!fish.includes(juice)) {
         fish.push(juice);
       }
-      message.react(juice);
     }
 
     var args = message.content.split(" ").slice(1);
-
+    var commandsuccess = true;
     switch (cmd) {
       case 'randomsofe':
         var sofehex = Math.floor(Math.random() * 16777215).toString(16);
@@ -469,14 +468,13 @@ client.on('message', message => {
           embed: help
         });
         break;
-
       default:
         if (message.guild.id == config.mainguild) {
-          message.react('❌');
+          commandsuccess = false;
         }
         break;
     }
-
+    if(commandsuccess) message.react(juice);
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
   } else if (message.content.match(twitterregex) !== null) {
