@@ -474,7 +474,7 @@ client.on('message', message => {
         }
         break;
     }
-    if(commandsuccess) message.react(juice);
+    if(commandsuccess && message.guild.id == config.mainguild) message.react(juice);
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
   } else if (message.content.match(twitterregex) !== null) {
