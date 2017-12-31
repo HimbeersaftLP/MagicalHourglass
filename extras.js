@@ -1,6 +1,10 @@
 const Discord = require('discord.js');
 
 (function() {
+  module.exports.nlength = function(number) {
+    if (typeof number === "undefined") return 0;
+    return Math.ceil(Math.log(number + 1) / Math.LN10);
+  }
 
   module.exports.embed = function(title = false, description = false, thumbnail = 'https://himbeer.me/images/logo-monochrome.png', color = false) {
     var embed = new Discord.RichEmbed();

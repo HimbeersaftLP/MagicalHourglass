@@ -497,7 +497,7 @@ client.on('message', message => {
         var codemsg = `Showing lines ${match[3] - 5} - ${Number(match[3]) + 5} of ${match[2]}` + '```' + lang + '\n';
         for (i = match[3] - 5; i < Number(match[3]) + 6; i++) {
           if (typeof lines[i - 1] !== 'undefined') {
-            codemsg += `${i} ${lines[i - 1]}\n`
+            codemsg += `${((i == match[3]) ? ">" : " ")} ${(extras.nlength(i) < extras.nlength(Number(match[3]) + 6) ? " " : "")}${i} ${lines[i - 1]}\n`;
           }
         }
         message.reply(codemsg + '```');
