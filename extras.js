@@ -1,6 +1,11 @@
 const Discord = require('discord.js');
 
 (function() {
+  /**
+   * @description Calculates the length of a number
+   * @param {Number} number Number to get the length of
+   * @returns {Number} Length of the number
+  */
   module.exports.nlength = function(number) {
     if (typeof number === "undefined") return 0;
     return Math.ceil(Math.log(number + 1) / Math.LN10);
