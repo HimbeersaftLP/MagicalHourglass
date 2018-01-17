@@ -23,7 +23,7 @@ const crypto = require('crypto');
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
 const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)/;
-const fileendregex = /.*\.(.*)/;
+const fileendregex = /.*\.([a-zA-Z0-9]*)/;
 
 var firstrun = 1;
 
@@ -32,7 +32,7 @@ var readyspam = 0;
 client.on('ready', () => {
   client.user.setStatus('online');
   console.log('Everything connected!');
-  client.user.setGame('-> ,help <-');
+  client.user.setActivity('-> ,help <-');
   if (readyspam == 0) {
     readyspam = 1;
     setTimeout(function() {
