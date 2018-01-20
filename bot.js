@@ -22,7 +22,7 @@ const crypto = require('crypto');
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
-const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)/;
+const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
 const fileendregex = /.*\.(.*)/;
 
 var firstrun = 1;
@@ -489,15 +489,37 @@ client.on('message', message => {
     if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   } else if (githubregex.test(message.content)) {
     var match = githubregex.exec(message.content);
+    // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
     request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body) {
       if (!error && response.statusCode == 200) {
         var lines = body.split('\n');
         if (typeof lines[match[3] - 1] === 'undefined') return;
+        match[3] = Number(match[3]);
+        if (typeof match[4] === "undefined") {
+          match[4] = match[3];
+          var from = match[3] - 5;
+          var to = match[3] + 5;
+        } else {
+          match[4] = Number(match[4]);
+          if (typeof lines[match[4] - 1] === 'undefined' || match[3] >= match[4]) return;
+          var from = match[3];
+          var to = match[4];
+          var diff = match[4] - match[3];
+          if (diff < 11) {
+            var space = Math.round((11 - diff) / 2);
+            from = match[3] - space;
+            to = match[4] + space;
+          }
+          if (diff > 40) {
+            from = match[3];
+            to = match[3] + 40;
+          }
+        }
         var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
-        var codemsg = `Showing lines ${match[3] - 5} - ${Number(match[3]) + 5} of ${match[2]}` + '```' + lang + '\n';
-        for (i = match[3] - 5; i < Number(match[3]) + 6; i++) {
+        var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
+        for (i = from; i <= to; i++) {
           if (typeof lines[i - 1] !== 'undefined') {
-            codemsg += `${((i == match[3]) ? ">" : " ")} ${(extras.nlength(i) < extras.nlength(Number(match[3]) + 6) ? " " : "")}${i} ${lines[i - 1]}\n`;
+            codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
           }
         }
         message.reply(codemsg + '```');
