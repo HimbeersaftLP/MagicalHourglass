@@ -439,6 +439,19 @@ client.on('message', message => {
         }
         break;
 
+      case 'mock':
+        if (!args[0]) {
+          message.reply('Usage: ,mock <text>\nExample: ,mock How do I open Discord');
+        } else {
+          var beforemock = args.join(' ');
+          var mocked = '';
+          for (var i = 0; i < beforemock.length; i++) {
+            mocked += (Math.random() >= 0.5) ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
+          }
+          message.channel.send(mocked);
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -464,7 +477,8 @@ client.on('message', message => {
           .addField(',issue or ,pr', 'Find an issue/pull request on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2')
           .addField(',poll', 'Make a poll using reactions!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
           .addField(',info or ,status', 'Display information and stats about this bot.')
-          .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd');
+          .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd')
+          .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address');
         message.author.send("", {
           embed: help
         });
