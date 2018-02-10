@@ -223,11 +223,7 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply('Usage: ,channels <text|voice>');
         } else {
-          var clist = message.guild.channels.map((c) => {
-            if (c.type == args[0].toLowerCase()) {
-              return c.toString();
-            }
-          }).join(' ');
+          var clist = msg.guild.channels.filter(c => { return c.type == args[0].toLowerCase(); }).map(c => c);
           if (clist == "") clist = 'No channels of this type were found';
           message.reply(clist);
         }
