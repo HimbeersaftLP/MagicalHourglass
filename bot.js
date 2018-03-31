@@ -477,6 +477,22 @@ client.on('message', message => {
         }
         break;
 
+      case 'pmref':
+      case 'ref':
+        if (!args[0]) {
+          message.reply('Usage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
+        } else {
+          // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
+          var matchfile = /(.*):([0-9]+)-?([0-9]+)?/.exec(args[0]);
+          if (matchfile) {
+            var match = ['', 'pmmp/PocketMine-MP/', 'master/src/' + matchfile[1], matchfile[2], matchfile[3]];
+            gitLinePreview(match, message);
+          } else {
+            message.reply('Usage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
+          }
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -504,7 +520,8 @@ client.on('message', message => {
           .addField(',info or ,status', 'Display information and stats about this bot.')
           .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd')
           .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address')
-          .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.');
+          .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.')
+          .addField(',pmref or ,ref', 'Gets a line preview from the PocketMine GitHub.\nUsage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
         message.author.send("", {
           embed: help
         });
@@ -530,42 +547,7 @@ client.on('message', message => {
     if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   } else if (githubregex.test(message.content)) {
     var match = githubregex.exec(message.content);
-    // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
-    request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body) {
-      if (!error && response.statusCode == 200) {
-        var lines = body.split('\n');
-        if (typeof lines[match[3] - 1] === 'undefined') return;
-        match[3] = Number(match[3]);
-        if (typeof match[4] === "undefined") {
-          match[4] = match[3];
-          var from = match[3] - 5;
-          var to = match[3] + 5;
-        } else {
-          match[4] = Number(match[4]);
-          if (typeof lines[match[4] - 1] === 'undefined' || match[3] >= match[4]) return;
-          var from = match[3];
-          var to = match[4];
-          var diff = match[4] - match[3];
-          if (diff < 11) {
-            var space = Math.round((11 - diff) / 2);
-            from = match[3] - space;
-            to = match[4] + space;
-          }
-          if (diff > 40) {
-            from = match[3];
-            to = match[3] + 40;
-          }
-        }
-        var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
-        var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
-        for (i = from; i <= to; i++) {
-          if (typeof lines[i - 1] !== 'undefined') {
-            codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
-          }
-        }
-        message.reply(codemsg + '```');
-      }
-    });
+    gitLinePreview(match, message);
   }
 });
 
@@ -787,6 +769,45 @@ function currencyConvert(amount, from, to) {
         resolve('An error occured while accessing the Cryptonator API!');
       }
     });
+  });
+}
+
+function gitLinePreview(match, message) {
+  // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
+  request.get('https://raw.githubusercontent.com/' + match[1] + match[2], function(error, response, body) {
+    if (!error && response.statusCode == 200) {
+      var lines = body.split('\n');
+      if (typeof lines[match[3] - 1] === 'undefined') return;
+      match[3] = Number(match[3]);
+      if (typeof match[4] === "undefined") {
+        match[4] = match[3];
+        var from = match[3] - 5;
+        var to = match[3] + 5;
+      } else {
+        match[4] = Number(match[4]);
+        if (typeof lines[match[4] - 1] === 'undefined' || match[3] >= match[4]) return;
+        var from = match[3];
+        var to = match[4];
+        var diff = match[4] - match[3];
+        if (diff < 11) {
+          var space = Math.round((11 - diff) / 2);
+          from = match[3] - space;
+          to = match[4] + space;
+        }
+        if (diff > 40) {
+          from = match[3];
+          to = match[3] + 40;
+        }
+      }
+      var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
+      var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
+      for (i = from; i <= to; i++) {
+        if (typeof lines[i - 1] !== 'undefined') {
+          codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
+        }
+      }
+      message.reply(codemsg + '```');
+    }
   });
 }
 
