@@ -440,6 +440,7 @@ client.on('message', message => {
         break;
 
       case 'mock':
+      case '<:mock:412317398050275329>':
         if (!args[0]) {
           message.reply('Usage: ,mock <text>\nExample: ,mock How do I open Discord');
         } else {
@@ -449,6 +450,30 @@ client.on('message', message => {
             mocked += (Math.random() >= 0.5) ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
           }
           message.channel.send(mocked);
+        }
+        break;
+
+      case 'xkcd':
+        if (isNaN(args[0]) && typeof args[0] !== 'undefined') {
+          message.reply('Usage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.');
+        } else {
+          const xkcdurl = typeof args[0] === 'undefined' ? '' : '/' + encodeURIComponent(args[0]);
+          request.get('https://xkcd.com' + xkcdurl + '/info.0.json', function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+              var xkcd = JSON.parse(body);
+              var xkcde = new Discord.RichEmbed()
+                .setColor(Math.floor(Math.random() * 16777215))
+                .setTitle(xkcd.num + ': ' + xkcd.safe_title)
+                .setDescription('Alt text: ' +  xkcd.alt)
+                .setImage(xkcd.img)
+                .setURL('https://xkcd.com/' + xkcd.num)
+                .setTimestamp(new Date(xkcd.year, xkcd.month, xkcd.day))
+                .setFooter('xkcd', 'https://i.imgur.com/kvScABp.png');
+              sendEmbed(message.channel, xkcde);
+            } else {
+              message.reply('An error occured while accessing the xkcd API!');
+            }
+          });
         }
         break;
 
@@ -478,7 +503,8 @@ client.on('message', message => {
           .addField(',poll', 'Make a poll using reactions!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
           .addField(',info or ,status', 'Display information and stats about this bot.')
           .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd')
-          .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address');
+          .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address')
+          .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.');
         message.author.send("", {
           embed: help
         });
