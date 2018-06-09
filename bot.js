@@ -493,6 +493,19 @@ client.on('message', message => {
         }
         break;
 
+      case 'emote':
+        if (!args[0]) {
+          message.reply('Usage: ,emote <name>\nExample: ,emote turtle');
+        } else {
+          var emote = message.guild.emojis.find('name', args[0]);
+          if (emote === null) {
+            message.reply("Error: Emote not found!");
+          } else {
+            message.channel.send(emote.toString() + " - " + message.author.toString());
+          }
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -521,7 +534,8 @@ client.on('message', message => {
           .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd')
           .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address')
           .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.')
-          .addField(',pmref or ,ref', 'Gets a line preview from the PocketMine GitHub.\nUsage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
+          .addField(',pmref or ,ref', 'Gets a line preview from the PocketMine GitHub.\nUsage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69')
+          .addField(',emote', 'Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ,emote <name>\nExample: ,emote turtle');
         message.author.send("", {
           embed: help
         });
