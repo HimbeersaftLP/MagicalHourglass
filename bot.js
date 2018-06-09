@@ -417,6 +417,7 @@ client.on('message', message => {
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
           .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
           .addField('Author:', 'HimbeersaftLP#8553')
+          .addField('Invite:', '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)')
           .addField('Stats:', stats);
         sendEmbed(message.channel, status);
         break;
@@ -511,7 +512,7 @@ client.on('message', message => {
         var help = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('Help for MagicalHourglass:')
-          .setDescription('Commands:')
+          .setDescription('Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:')
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
           .addField(',randomsofe', 'Generate a random SOFe avatar')
           .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
