@@ -501,7 +501,7 @@ client.on('message', message => {
           if (emote === null) {
             message.reply("Error: Emote not found!");
           } else {
-            message.channel.send(emote.toString() + " - " + message.author.toString());
+            message.channel.send(emote.toString());
           }
         }
         break;
