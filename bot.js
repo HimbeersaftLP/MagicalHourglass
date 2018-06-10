@@ -836,7 +836,7 @@ function whois(member, mtn = true) {
     .addField('Avatar URL', m.displayAvatarURL)
     .addField('Created at', m.createdAt)
     .addField('Bot?', m.bot)
-    .addField('Roles', rls);
+    .addField('Roles', '\\' + rls);
   if (m.presence.game != null) {
     uemb.addField('Game', m.presence.game.name);
   } else {
