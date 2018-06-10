@@ -507,6 +507,20 @@ client.on('message', message => {
         }
         break;
 
+      case 's':
+        var match = /s (.+)\/(.+)/.exec(message.content.substr(1));
+        if (match === null) {
+          message.reply('Usage: ,s <find>/<replace>\nExample: ,s tst/test');
+        } else {
+          var m = message.channel.messages.array()[message.channel.messages.array().length - 2];
+          if (typeof m === 'undefined') {
+            message.reply('Error: Couldn\'t get the last message in this channel.');
+          } else {
+            message.reply(m.content.replace(match[1], match[2]));
+          }
+        }
+        break;
+
       case 'help':
         message.reply('Sent you a DM!');
         var help = new Discord.RichEmbed()
@@ -536,7 +550,8 @@ client.on('message', message => {
           .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address')
           .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.')
           .addField(',pmref or ,ref', 'Gets a line preview from the PocketMine GitHub.\nUsage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69')
-          .addField(',emote', 'Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ,emote <name>\nExample: ,emote turtle');
+          .addField(',emote', 'Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ,emote <name>\nExample: ,emote turtle')
+          .addField(',s', 'Find and replace text in the last message of the channel your\'re in.\nUsage: ,s <find>/<replace>\nExample: ,s tst/test');
         message.author.send("", {
           embed: help
         });
