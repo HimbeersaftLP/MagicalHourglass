@@ -508,7 +508,7 @@ client.on('message', message => {
         break;
 
       case 's':
-        var match = /s (.+)\/(.+)/.exec(message.content.substr(1));
+        var match = /s (.+)\/(.*)/.exec(message.content.substr(1));
         if (match === null) {
           message.reply('Usage: ,s <find>/<replace>\nExample: ,s tst/test');
         } else {
