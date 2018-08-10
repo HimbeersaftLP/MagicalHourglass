@@ -121,10 +121,10 @@ client.on('message', message => {
 
       case 't':
         message.channel.startTyping();
-        request.get('http://api.program-o.com/v2/chatbot/?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function(error, response, body) {
+        request.get('https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function(error, response, body) {
           if (!error && response.statusCode == 200) {
             var b = JSON.parse(body);
-            message.reply(b.botsay);
+            message.reply(b.conversation.say.bot);
           } else {
             message.reply('An error occured while accessing the Program-O API!');
           }
