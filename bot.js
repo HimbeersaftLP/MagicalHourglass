@@ -5,9 +5,6 @@ const client = new Discord.Client();
 
 const extras = require('./extras.js');
 
-var imgur = require('imgur');
-imgur.setClientId(config.imgurtoken);
-
 var S = require('string');
 const removeMd = require('remove-markdown');
 var parseXml = require('xml2js').parseString;
@@ -880,23 +877,11 @@ function getrandrot() {
 }
 
 function makesofe(message, hex, bghex, rot = 0) {
-  message.channel.startTyping();
   var sofe = 'https://himbeer.me/sofeavatars/sofeavatar.php?hex=' + hex + '&bghex=' + bghex + '&rot=' + rot;
-  imgur.uploadUrl(sofe)
-    .then(function(json) {
-      var soflink = json.data.link;
-      console.log('Imgur link: ' + soflink);
-      var sofembed = new Discord.RichEmbed()
-        .setColor(parseInt(hex, 16))
-        .setTitle('Your SOFe avatar has been generated!')
-        .setDescription('API Link: ' + sofe + '\n\nImgur Link: ' + soflink)
-        .setThumbnail(soflink);
-      sendEmbed(message.channel, sofembed);
-      message.channel.stopTyping();
-    })
-    .catch(function(err) {
-      console.error('Imgur upload error: ' + err.message);
-      message.reply("Couldn't upload image to imgur (for the preview), here's a direct link: " + sofe);
-      message.channel.stopTyping();
-    });
+  var sofembed = new Discord.RichEmbed()
+    .setColor(parseInt(hex, 16))
+    .setTitle('Your SOFe avatar has been generated!')
+    .setDescription('Link: ' + sofe)
+    .setThumbnail(sofe);
+  sendEmbed(message.channel, sofembed);
 }

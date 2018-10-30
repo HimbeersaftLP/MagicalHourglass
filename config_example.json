@@ -4,7 +4,6 @@
   "prefix": ",",
   
   "discordtoken": "Your Discord bot accounts token",
-  "imgurtoken": "Your Imgur API token",
   "owmid": "Your OpenWeatherMap App ID",
   "googlekey": "Your Google CSE Api key",
   "google_cse_id": "Your Google CSE search engine ID",
