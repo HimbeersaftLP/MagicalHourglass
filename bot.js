@@ -246,7 +246,7 @@ client.on('message', message => {
             switch (r.result.action) {
               case "web.search":
                 switch (r.result.parameters.engine) {
-                  case "Google Image":
+                  case "Google Images":
                     googlepic(r.result.parameters.q, message);
                     break;
                   case "Poggit":
