@@ -447,7 +447,7 @@ client.on('message', message => {
           for (var i = 0; i < beforemock.length; i++) {
             mocked += (Math.random() >= 0.5) ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
           }
-          message.channel.send(mocked);
+          message.channel.send(message.author + ": " + mocked);
         }
         break;
 
@@ -665,7 +665,7 @@ function getweather(q, message) {
 }
 
 function getcat(message) {
-  request.get('http://random.cat/meow', function(error, response, body) {
+  request.get('http://aws.random.cat/meow', function(error, response, body) {
     if (!error && response.statusCode == 200) {
       var c = JSON.parse(body);
       var cat = new Discord.RichEmbed()
