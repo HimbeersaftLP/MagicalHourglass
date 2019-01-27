@@ -716,7 +716,7 @@ function searchpoggit(plugin, message) {
         var pinfo = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle(pl.name + ' (' + pl.state_name + '):')
-          .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: ' + pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
+          .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: ' + pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '/' + pl.name + '.phar' + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
           .setThumbnail(pl.icon_url)
           .setTimestamp(new Date(pl.submission_date * 1000))
           .setURL(pl.html_url)
