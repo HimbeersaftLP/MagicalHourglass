@@ -296,7 +296,7 @@ client.on('message', message => {
       case 'pr':
         var repo;
         var number;
-        if (message.guild.id == '287339519500353537' && !args[1]) {
+        if ((message.guild.id == '287339519500353537' || message.guild.id == '373199722573201408') && !args[1]) {
           if (!args[0]) {
             message.reply('Usage: ,issue <number> or ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
             return;
