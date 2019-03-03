@@ -776,8 +776,12 @@ function gitIssue(repo, number, message) {
         gissue.setDescription(removeMd(g.body));
       }
       sendEmbed(message.channel, gissue);
+    } else if (!error && response.statusCode == 404) {
+      message.reply('Error: Repo or issue not found.');
+    } else if (!error && response.statusCode == 410) {
+      message.reply('Error: The requested issue was deleted.');
     } else {
-      message.reply('An error occured while accessing the GitHub API' + ((JSON.parse(body).message === "Not Found") ? ': Repo or issue not found!' : '!'));
+      message.reply('An error occured while accessing the GitHub API!');
     }
   });
 }
