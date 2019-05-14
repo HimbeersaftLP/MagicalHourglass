@@ -713,10 +713,19 @@ function searchpoggit(plugin, message) {
         message.reply('Error: Plugin not found!');
       } else {
         var pl = JSON.parse(body)[0];
+        var uemb = new extras.UnrealEmbed()
+          .setDescription(pl.tagline)
+          .addField('Version', pl.version)
+          .addField('Downloads', pl.downloads)
+          .addField('Build', pl.build_number)
+          .addField('Github', 'https://github.com/' + pl.repo_name)
+          .addField('Download', pl.artifact_url + '/' + pl.name + '.phar');
+        if (pl.api.length > 0) uemb.addField('For APIs', pl.api[0].from + ' - ' + pl.api[0].to);
+        uemb.addField('License', pl.license);
         var pinfo = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle(pl.name + ' (' + pl.state_name + '):')
-          .setDescription(pl.tagline + '\n\nVersion: ' + pl.version + '\nDownloads: ' + pl.downloads + '\nBuild: ' + pl.build_number + '\nGitHub: https://github.com/' + pl.repo_name + '\nDownload: ' + pl.artifact_url + '/' + pl.name + '.phar' + '\nFor APIs: ' + pl.api[0].from + ' - ' + pl.api[0].to + '\nLicense: ' + pl.license)
+          .setDescription(uemb.toString())
           .setThumbnail(pl.icon_url)
           .setTimestamp(new Date(pl.submission_date * 1000))
           .setURL(pl.html_url)

@@ -48,7 +48,7 @@ const Discord = require('discord.js');
       return this.checkLength();
     }
 
-    setDesc(description) {
+    setDescription(description) {
       this.desc = description;
       return this.checkLength();
     }
