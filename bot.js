@@ -7,7 +7,6 @@ const extras = require('./extras.js');
 
 var S = require('string');
 const removeMd = require('remove-markdown');
-var parseXml = require('xml2js').parseString;
 
 var request = require('request');
 
