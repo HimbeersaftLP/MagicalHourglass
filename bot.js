@@ -839,6 +839,7 @@ function gitLinePreview(match, message) {
         }
       }
       var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
+      if (lang === "kt") lang = "kotlin"; // Workaround for Kotlin syntax highlighting
       var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
       for (i = from; i <= to; i++) {
         if (typeof lines[i - 1] !== 'undefined') {
