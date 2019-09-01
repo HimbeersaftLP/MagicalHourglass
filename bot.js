@@ -840,7 +840,9 @@ function gitLinePreview(match, message) {
       }
       var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
       if (lang === "kt") lang = "kotlin"; // Workaround for Kotlin syntax highlighting
-      var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
+      if (lang === "svg") lang = "xml"; // Workaround for svg syntax highlighting
+      var cleanFileName = match[2].replace(/\?.+/, ""); // Remove HTTP GET Query Parameters
+      var codemsg = `Showing lines ${from} - ${to} of ${cleanFileName}` + '```' + lang + '\n';
       for (i = from; i <= to; i++) {
         if (typeof lines[i - 1] !== 'undefined') {
           codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
