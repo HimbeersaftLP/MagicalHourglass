@@ -391,6 +391,7 @@ client.on('message', message => {
 
       case 'info':
       case 'status':
+      case 'invite':
         var seconds = process.uptime();
         days = Math.floor(seconds / 86400);
         seconds %= 86400;
