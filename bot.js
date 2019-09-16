@@ -89,6 +89,10 @@ client.on('message', message => {
 
       case 'say':
         message.delete();
+        if(message.mentions.everyone){
+          message.reply("You cannot mention everyone/here");
+          break;
+        }
         message.channel.send(args.join(' '));
         break;
 
