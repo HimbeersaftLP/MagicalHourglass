@@ -51,7 +51,7 @@ client.on('message', message => {
 
     if (config.blocked.includes(cmd)) return;
 
-    console.log('Command ' + cmd + ' has been received from ' + message.author.username);
+    console.log(`> "${cmd}" by "${message.author.tag}" on "${message.guild.name}"`);
 
     if (message.guild.id == config.mainguild) {
       var juice = message.guild.emojis.get(config.juiceid);
