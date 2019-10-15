@@ -59,7 +59,6 @@ client.on('message', message => {
       }
     }
 
-    // var args = message.content.split(" ").slice(1);
     var commandsuccess = true;
     switch (cmd) {
       case 'randomsofe':
