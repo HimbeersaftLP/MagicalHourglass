@@ -7,8 +7,7 @@
     "apiai": "^4.0.3",
     "discord.js": "^11.5.1",
     "remove-markdown": "^0.3.0",
-    "request": "^2.88.0",
-    "string": "^3.3.3"
+    "request": "^2.88.0"
   },
   "devDependencies": {},
   "scripts": {
