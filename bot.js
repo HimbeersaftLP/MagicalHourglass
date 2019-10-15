@@ -29,7 +29,7 @@ var readyspam = 0;
 client.on('ready', () => {
   client.user.setStatus('online');
   console.log('Everything connected!');
-  client.user.setActivity('-> ,help <-');
+  client.user.setActivity(`-> ${config.prefix}help <-`);
   if (readyspam == 0) {
     readyspam = 1;
     setTimeout(function() {
@@ -51,7 +51,7 @@ client.on('message', message => {
 
     if (config.blocked.includes(cmd)) return;
 
-    console.log('Command ' + cmd + ' has been received from ' + message.author.username);
+    console.log('Command ' + cmd + ' has been received from ' + message.author.tag);
 
     if (message.guild.id == config.mainguild) {
       var juice = message.guild.emojis.get(config.juiceid);
@@ -83,7 +83,7 @@ client.on('message', message => {
           var rot = args[2];
           makesofe(message, fhex, bhex, rot);
         } else {
-          message.reply("Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90");
+          message.reply(`Usage: ${config.prefix}makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ${config.prefix}makesofe FFEE00 FFFFFF 90`);
         }
         break;
 
@@ -99,7 +99,7 @@ client.on('message', message => {
 
       case 'weather':
         if (!args[0]) {
-          message.reply('Usage: ,weather <city>\nExample: ,weather London');
+          message.reply(`Usage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`);
           return;
         }
         getweather(args[0], message);
@@ -136,7 +136,7 @@ client.on('message', message => {
         if (message.mentions.members.first() != undefined) {
           sendEmbed(message.channel, whois(message.mentions.members.first()));
         } else {
-          message.reply('Member not found!\nCommand Usage: ,whois @mentionOfaUser');
+          message.reply(`Member not found!\nCommand Usage: ${config.prefix}whois @mentionOfaUser`);
         }
         break;
 
@@ -190,7 +190,7 @@ client.on('message', message => {
 
       case 'googlepic':
         if (!args[0]) {
-          message.reply('Usage: ,googlepic <search term>');
+          message.reply(`Usage: ${config.prefix}googlepic <search term>`);
         } else {
           message.channel.startTyping();
           var oargs = JSON.parse(JSON.stringify(args));
@@ -207,7 +207,7 @@ client.on('message', message => {
 
       case 'poggit':
         if (!args[0]) {
-          message.reply('Usage: ,poggit <plugin name>');
+          message.reply(`Usage: ${config.prefix}poggit <plugin name>`);
         } else {
           message.channel.startTyping();
           searchpoggit(args[0], message);
@@ -217,7 +217,7 @@ client.on('message', message => {
 
       case 'channels':
         if (!args[0]) {
-          message.reply('Usage: ,channels <text|voice>');
+          message.reply(`Usage: ${config.prefix}channels <text|voice>`);
         } else {
           var clist = message.guild.channels.map((c) => {
             if (c.type == args[0].toLowerCase()) {
@@ -297,21 +297,21 @@ client.on('message', message => {
         var number;
         if ((message.guild.id == '287339519500353537' || message.guild.id == '373199722573201408') && !args[1]) {
           if (!args[0]) {
-            message.reply('Usage: ,issue <number> or ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+            message.reply(`Usage: ${config.prefix}issue <number> or ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`);
             return;
           }
           repo = 'pmmp/pocketmine-mp';
           number = args[0];
         } else {
           if (!args[1]) {
-            message.reply('Usage: ,issue <repo> <number>\nExample: ,issue boxofdevs/commandshop 2');
+            message.reply(`Usage: ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`);
             return;
           }
           repo = args[0];
           number = args[1];
         }
         if (isNaN(number)) {
-          message.reply('Usage: ,issue <repo> **<number>**\nExample: ,issue boxofdevs/commandshop **2**');
+          message.reply(`Usage: ${config.prefix}issue <repo> **<number>**\nExample: ${config.prefix}issue boxofdevs/commandshop **2**`);
         } else {
           message.channel.startTyping();
           gitIssue(repo, Math.floor(number), message);
@@ -321,7 +321,7 @@ client.on('message', message => {
 
       case 'poll':
         if (!args[0]) {
-          message.reply('Usage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes');
+          message.reply(`Usage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`);
         } else {
           if (!isNaN(args[args.length - 1])) {
             var time = Math.floor(args[args.length - 1]);
@@ -420,7 +420,7 @@ client.on('message', message => {
 
       case 'convert':
         if (!args[2] | isNaN(args[0])) {
-          message.reply('Usage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd');
+          message.reply(`Usage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`);
         } else {
           currencyConvert(args[0], args[1], args[2]).then(function(conv) {
             if (isNaN(conv)) {
@@ -439,7 +439,7 @@ client.on('message', message => {
       case 'mock':
       case '<:mock:412317398050275329>':
         if (!args[0]) {
-          message.reply('Usage: ,mock <text>\nExample: ,mock How do I open Discord');
+          message.reply(`Usage: ${config.prefix}mock <text>\nExample: ${config.prefix}mock How do I open Discord`);
         } else {
           var beforemock = args.join(' ');
           var mocked = '';
@@ -452,7 +452,7 @@ client.on('message', message => {
 
       case 'xkcd':
         if (isNaN(args[0]) && typeof args[0] !== 'undefined') {
-          message.reply('Usage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.');
+          message.reply(`Usage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`);
         } else {
           const xkcdurl = typeof args[0] === 'undefined' ? '' : '/' + encodeURIComponent(args[0]);
           request.get('https://xkcd.com' + xkcdurl + '/info.0.json', function(error, response, body) {
@@ -477,7 +477,7 @@ client.on('message', message => {
       case 'pmref':
       case 'ref':
         if (!args[0]) {
-          message.reply('Usage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
+          message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
         } else {
           // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
           var matchfile = /(.*):([0-9]+)-?([0-9]+)?/.exec(args[0]);
@@ -485,14 +485,14 @@ client.on('message', message => {
             var match = ['', 'pmmp/PocketMine-MP/', 'master/src/' + matchfile[1], matchfile[2], matchfile[3]];
             gitLinePreview(match, message);
           } else {
-            message.reply('Usage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69');
+            message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
           }
         }
         break;
 
       case 'emote':
         if (!args[0]) {
-          message.reply('Usage: ,emote <name>\nExample: ,emote turtle');
+          message.reply(`Usage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`);
         } else {
           var emote = message.guild.emojis.find('name', args[0]);
           if (emote === null) {
@@ -506,7 +506,7 @@ client.on('message', message => {
       case 's':
         var match = /s (.+)\/(.*)/.exec(message.content.substr(1));
         if (match === null) {
-          message.reply('Usage: ,s <find>/<replace>\nExample: ,s tst/test');
+          message.reply(`Usage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`);
         } else {
           var m = message.channel.messages.array()[message.channel.messages.array().length - 2];
           if (typeof m === 'undefined') {
@@ -524,30 +524,30 @@ client.on('message', message => {
           .setTitle('Help for MagicalHourglass:')
           .setDescription('Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:')
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
-          .addField(',randomsofe', 'Generate a random SOFe avatar')
-          .addField(',makesofe', 'Usage: ,makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ,makesofe FFEE00 FFFFFF 90')
-          .addField(',say', 'Let me say something for you...\nExample: ,say Hi')
-          .addField(',8ball', 'Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ,8ball Am I great?')
-          .addField(',weather', 'Get the current weather of a specific cifm OpenWeatherMap\nUsage: ,weather <city>\nExample: ,weather London')
-          .addField(',cat', 'Get a random cat image from random.cat')
-          .addField(',fish', 'Go fishing!')
-          .addField(',t', 'Talk with Program-O...\nUsage: ,t <Your message>\nExample: ,t How are you?')
-          .addField(',whoami', 'Get information about yourself.')
-          .addField(',whois', 'Get information about another member.\nUsage: ,whois @mentionOfaUser\nExample: ,whois @HimbeersaftLP#8553')
-          .addField(',googlepic', 'Search Google for images.\nUsage: ,googlepic <search term>\nExample: ,googlepic boxofdevs team')
-          .addField(',poggit', 'Search for a plugin release on Poggit.\nUsage: ,poggit <plugin name>\nExample: ,poggit DevTools')
-          .addField(',channels', 'Shows a list of channels of the provided type.\nUsage: ,channel <text|voice>')
-          .addField(',chuck', 'Get a random Chuck Norris fact from api.chucknorris.io.')
-          .addField(',ai', 'Let the AI execute commands, just try it!')
-          .addField(',issue or ,pr', 'Find an issue/pull request on GitHub.\nUsage: ,issue <repo> <number> (on PMMP Discord also ,issue <number> for the PMMP repo)\nExample: ,issue boxofdevs/commandshop 2')
-          .addField(',poll', 'Make a poll using reactions!\nUsage: ,poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes')
-          .addField(',info or ,status', 'Display information and stats about this bot.')
-          .addField(',convert', 'Convert currencies (supports cryptocurrencys)\nUsage: ,convert <amount> <from> <to>\nExample: ,convert 2 btc usd')
-          .addField(',mock', 'maKeS tHE TeXt loOK lIkE tHiS\nUsage: ,mock <text>\nExample: ,mock How can I make an Email address')
-          .addField(',xkcd', 'Gets the given or most recent comic from xkcd.com.\nUsage: ,xkcd <id>\nExample: ,xkcd 292\nWhen no ID is provided, the most recent one will be displayed.')
-          .addField(',pmref or ,ref', 'Gets a line preview from the PocketMine GitHub.\nUsage: ,pmref <file>:<line from>[-line to]\nExample: ,pmref pocketmine/Server.php:1337 or ,pmref pocketmine/Server.php:42-69')
-          .addField(',emote', 'Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ,emote <name>\nExample: ,emote turtle')
-          .addField(',s', 'Find and replace text in the last message of the channel your\'re in.\nUsage: ,s <find>/<replace>\nExample: ,s tst/test');
+          .addField(`${config.prefix}randomsofe`, 'Generate a random SOFe avatar')
+          .addField(`${config.prefix}makesofe`, `Usage: ${config.prefix}makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ${config.prefix}makesofe FFEE00 FFFFFF 90`)
+          .addField(`${config.prefix}say`, `Let me say something for you...\nExample: ${config.prefix}say Hi`)
+          .addField(`${config.prefix}8ball`, `Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ${config.prefix}8ball Am I great?`)
+          .addField(`${config.prefix}weather`, `Get the current weather of a specific cifm OpenWeatherMap\nUsage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`)
+          .addField(`${config.prefix}cat`, 'Get a random cat image from random.cat')
+          .addField(`${config.prefix}fish`, 'Go fishing!')
+          .addField(`${config.prefix}t`, `Talk with Program-O...\nUsage: ${config.prefix}t <Your message>\nExample: ${config.prefix}t How are you?`)
+          .addField(`${config.prefix}whoami`, 'Get information about yourself.')
+          .addField(`${config.prefix}whois`, `Get information about another member.\nUsage: ${config.prefix}whois @mentionOfaUser\nExample: ${config.prefix}whois @HimbeersaftLP#8553`)
+          .addField(`${config.prefix}googlepic`, `Search Google for images.\nUsage: ${config.prefix}googlepic <search term>\nExample: ${config.prefix}googlepic boxofdevs team`)
+          .addField(`${config.prefix}poggit`, `Search for a plugin release on Poggit.\nUsage: ${config.prefix}poggit <plugin name>\nExample: ${config.prefix}poggit DevTools`)
+          .addField(`${config.prefix}channels`, `Shows a list of channels of the provided type.\nUsage: ${config.prefix}channel <text|voice>`)
+          .addField(`${config.prefix}chuck`, `Get a random Chuck Norris fact from api.chucknorris.io.`)
+          .addField(`${config.prefix}ai`, 'Let the AI execute commands, just try it!')
+          .addField(`${config.prefix}issue or ${config.prefix}pr`, `Find an issue/pull request on GitHub.\nUsage: ${config.prefix}issue <repo> <number> (on PMMP Discord also ${config.prefix}issue <number> for the PMMP repo)\nExample: ${config.prefix}issue boxofdevs/commandshop 2`)
+          .addField(`${config.prefix}poll`, `Make a poll using reactions!\nUsage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`)
+          .addField(`${config.prefix}info or ${config.prefix}status`, 'Display information and stats about this bot.')
+          .addField(`${config.prefix}convert`, `Convert currencies (supports cryptocurrencys)\nUsage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`)
+          .addField(`${config.prefix}mock`, `maKeS tHE TeXt loOK lIkE tHiS\nUsage: ${config.prefix}mock <text>\nExample: ${config.prefix}mock How can I make an Email address`)
+          .addField(`${config.prefix}xkcd`, `Gets the given or most recent comic from xkcd.com.\nUsage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`)
+          .addField(`${config.prefix}pmref or ${config.prefix}ref`, `Gets a line preview from the PocketMine GitHub.\nUsage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`)
+          .addField(`${config.prefix}emote`, `Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`)
+          .addField(`${config.prefix}s`, `Find and replace text in the last message of the channel your\'re in.\nUsage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`);
         message.author.send("", {
           embed: help
         });
