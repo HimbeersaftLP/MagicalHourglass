@@ -51,7 +51,7 @@ client.on('message', message => {
 
     if (config.blocked.includes(cmd)) return;
 
-    console.log('Command ' + cmd + ' has been received from ' + message.author.tag);
+    console.log(`> "${cmd}" by "${message.author.tag}" on "${message.guild.name}"`);
 
     if (message.guild.id == config.mainguild) {
       var juice = message.guild.emojis.get(config.juiceid);
@@ -89,6 +89,13 @@ client.on('message', message => {
 
       case 'say':
         message.delete();
+        if(message.mentions.everyone ||
+          message.content.includes("@everyone") ||
+          message.content.includes("@here")
+        ){
+          message.reply("You cannot mention everyone/here");
+          break;
+        }
         message.channel.send(args.join(' '));
         break;
 
@@ -391,6 +398,7 @@ client.on('message', message => {
 
       case 'info':
       case 'status':
+      case 'invite':
         var seconds = process.uptime();
         days = Math.floor(seconds / 86400);
         seconds %= 86400;
@@ -839,7 +847,10 @@ function gitLinePreview(match, message) {
         }
       }
       var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
-      var codemsg = `Showing lines ${from} - ${to} of ${match[2]}` + '```' + lang + '\n';
+      if (lang === "kt") lang = "kotlin"; // Workaround for Kotlin syntax highlighting
+      if (lang === "svg") lang = "xml"; // Workaround for svg syntax highlighting
+      var cleanFileName = match[2].replace(/\?.+/, ""); // Remove HTTP GET Query Parameters
+      var codemsg = `Showing lines ${from} - ${to} of ${cleanFileName}` + '```' + lang + '\n';
       for (i = from; i <= to; i++) {
         if (typeof lines[i - 1] !== 'undefined') {
           codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
