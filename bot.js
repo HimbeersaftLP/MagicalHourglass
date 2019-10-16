@@ -5,7 +5,6 @@ const client = new Discord.Client();
 
 const extras = require('./extras.js');
 
-var S = require('string');
 const removeMd = require('remove-markdown');
 
 var request = require('request');
@@ -44,10 +43,10 @@ client.on('ready', () => {
 client.on('message', message => {
   if (message.author.bot) return;
   if (config.blockedusers.includes(message.author.id)) return;
-  if (S(message.content).startsWith(config.prefix)) {
+  if (message.content.startsWith(config.prefix)) {
 
-    var cmd = message.content.split(" ")[0];
-    cmd = S(cmd).chompLeft(config.prefix).s.toLowerCase();
+    const args = message.content.slice(config.prefix.length).split(/ +/);
+    const cmd = args.shift().toLowerCase();
 
     if (config.blocked.includes(cmd)) return;
 
@@ -60,7 +59,6 @@ client.on('message', message => {
       }
     }
 
-    var args = message.content.split(" ").slice(1);
     var commandsuccess = true;
     switch (cmd) {
       case 'randomsofe':
@@ -71,7 +69,7 @@ client.on('message', message => {
         break;
 
       case 'makesofe':
-        if (S(message.content).contains('#')) {
+        if (message.content.includes('#')) {
           message.reply("Please don't use #'s or any other symbols for the hex codes in this command!");
         } else if (args[0] && args[1] && !args[2]) {
           var fhex = args[0];
