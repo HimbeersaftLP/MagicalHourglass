@@ -5,25 +5,30 @@ const Discord = require('discord.js');
    * @description Calculates the length of a number
    * @param {Number} number Number to get the length of
    * @returns {Number} Length of the number
-  */
+   */
   module.exports.nlength = function(number) {
-    if (typeof number === "undefined") return 0;
+    if (typeof number === 'undefined') return 0;
     return Math.ceil(Math.log(number + 1) / Math.LN10);
-  }
+  };
 
-  module.exports.embed = function(title = false, description = false, thumbnail = 'https://himbeer.me/images/logo-monochrome.png', color = false) {
+  module.exports.embed = function(
+    title = false,
+    description = false,
+    thumbnail = 'https://himbeer.me/images/logo-monochrome.png',
+    color = false
+  ) {
     var embed = new Discord.RichEmbed();
     if (title) embed.setTitle(title);
     if (description) embed.setDescription(description);
     if (thumbnail) embed.setThumbnail(thumbnail);
-    if (color) embed.setColor(color)
+    if (color) embed.setColor(color);
     else embed.setColor(Math.floor(Math.random() * 16777215));
     return embed;
-  }
+  };
 
   module.exports.UnrealEmbed = class UnrealEmbed {
-
-    constructor(title = false, description = false, rows = false, dots = '•', maxlength = 2048) { // 2048 to fit into a normal embed's description
+    constructor(title = false, description = false, rows = false, dots = '•', maxlength = 2048) {
+      // 2048 to fit into a normal embed's description
       this.title = title;
       this.desc = description;
       this.rows = rows;
@@ -32,7 +37,11 @@ const Discord = require('discord.js');
     }
 
     toString() {
-      return (this.title ? `**${this.title}**` : '') + (this.desc ? `\n${this.desc}` : '') + (this.rows ? this.rows.map(row => `\n${this.dots} __${row[0]}:__ ${row[1]}`).join('') : '');
+      return (
+        (this.title ? `**${this.title}**` : '') +
+        (this.desc ? `\n${this.desc}` : '') +
+        (this.rows ? this.rows.map(row => `\n${this.dots} __${row[0]}:__ ${row[1]}`).join('') : '')
+      );
     }
 
     checkLength() {
@@ -63,11 +72,11 @@ const Discord = require('discord.js');
       this.dots = dots;
       return this.checkLength();
     }
-
-  }
+  };
 
   module.exports.SubFields = class SubFields {
-    constructor(data = [], dots = '•') { // Example: new extras.SubFields()
+    constructor(data = [], dots = '•') {
+      // Example: new extras.SubFields()
       this.data = data;
       this.dots = dots;
     }
@@ -80,5 +89,5 @@ const Discord = require('discord.js');
       this.data.push([name, value]);
       return this;
     }
-  }
-}());
+  };
+})();

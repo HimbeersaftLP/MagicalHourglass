@@ -37,7 +37,7 @@ client.on('ready', () => {
       readyspam = 0;
     }, 3000);
   } else {
-    console.error("Stopping due to client-ready spam, please restart the bot!");
+    console.error('Stopping due to client-ready spam, please restart the bot!');
     process.exit(0);
   }
 });
@@ -46,7 +46,6 @@ client.on('message', message => {
   if (message.author.bot) return;
   if (config.blockedusers.includes(message.author.id)) return;
   if (message.content.startsWith(config.prefix)) {
-
     const args = message.content.slice(config.prefix.length).split(/ +/);
     const cmd = args.shift().toLowerCase();
 
@@ -83,15 +82,21 @@ client.on('message', message => {
 
       case 't':
         message.channel.startTyping();
-        request.get('https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function(error, response, body) {
-          if (!error && response.statusCode == 200) {
-            var b = JSON.parse(body);
-            message.reply(b.conversation.say.bot);
-          } else {
-            message.reply('An error occured while accessing the Program-O API!');
+        request.get(
+          'https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' +
+            encodeURIComponent(args.join(' ')) +
+            '&convo_id=' +
+            gsessionid(message),
+          function(error, response, body) {
+            if (!error && response.statusCode == 200) {
+              var b = JSON.parse(body);
+              message.reply(b.conversation.say.bot);
+            } else {
+              message.reply('An error occured while accessing the Program-O API!');
+            }
+            message.channel.stopTyping();
           }
-          message.channel.stopTyping();
-        });
+        );
         break;
 
       case 'whoami':
@@ -114,13 +119,25 @@ client.on('message', message => {
             var eend = process.hrtime(estart);
             var tm = '*Executed in ' + (eend[0] * 1000 + eend[1] / 1000000) + ' ms.*\n';
             if (typeof evaled === 'object') {
-              var mtd = message.channel.send(sendLong(tm + "\`\`\`\n" + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
-            } else if (typeof evaled === "undefined") {
-              var mtd = message.channel.send(tm + "\`\`\`\n" + typeof undefined + "\n\`\`\`");
+              var mtd = message.channel.send(
+                sendLong(
+                  tm + '```\n' + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```',
+                  1992,
+                  2000
+                )
+              );
+            } else if (typeof evaled === 'undefined') {
+              var mtd = message.channel.send(tm + '```\n' + typeof undefined + '\n```');
             } else if (evaled == null) {
-              var mtd = message.channel.send(tm + "\`\`\`\n" + null + "\n\`\`\`");
+              var mtd = message.channel.send(tm + '```\n' + null + '\n```');
             } else {
-              var mtd = message.channel.send(sendLong(tm + "\`\`\`\n" + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`", 1992, 2000));
+              var mtd = message.channel.send(
+                sendLong(
+                  tm + '```\n' + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```',
+                  1992,
+                  2000
+                )
+              );
             }
             mtd.then(function(msg) {
               if (typeof evaled !== 'undefined') {
@@ -133,9 +150,11 @@ client.on('message', message => {
             if (err !== null && typeof err === 'object') {
               err = util.inspect(err);
             }
-            message.channel.send(":x: Error!\n\`\`\`\n" + err.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + "\n\`\`\`").then(function(msg) {
-              msg.delete(10000);
-            });
+            message.channel
+              .send(':x: Error!\n```\n' + err.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```')
+              .then(function(msg) {
+                msg.delete(10000);
+              });
           }
         } else {
           message.reply("You ain't doing that!");
@@ -160,7 +179,7 @@ client.on('message', message => {
         } else {
           message.channel.startTyping();
           var oargs = JSON.parse(JSON.stringify(args));
-          if (args[args.length - 2] == "-r" && !isNaN(args[args.length - 1])) {
+          if (args[args.length - 2] == '-r' && !isNaN(args[args.length - 1])) {
             args.splice(args.length - 2, 2);
             var ri = oargs[oargs.length - 1];
           } else {
@@ -185,12 +204,14 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}channels <text|voice>`);
         } else {
-          var clist = message.guild.channels.map((c) => {
-            if (c.type == args[0].toLowerCase()) {
-              return c.toString();
-            }
-          }).join(' ');
-          if (clist == "") clist = 'No channels of this type were found';
+          var clist = message.guild.channels
+            .map(c => {
+              if (c.type == args[0].toLowerCase()) {
+                return c.toString();
+              }
+            })
+            .join(' ');
+          if (clist == '') clist = 'No channels of this type were found';
           message.reply(clist);
         }
         break;
@@ -202,40 +223,40 @@ client.on('message', message => {
       case 'ai':
         message.channel.startTyping();
         var air = ai.textRequest(args.join(' '), {
-          sessionId: gsessionid(message, "member")
+          sessionId: gsessionid(message, 'member'),
         });
 
         air.on('response', function(r) {
           message.reply(r.result.fulfillment.speech);
           if (!r.result.actionIncomplete) {
             switch (r.result.action) {
-              case "web.search":
+              case 'web.search':
                 switch (r.result.parameters.engine) {
-                  case "Google Images":
+                  case 'Google Images':
                     googlepic(r.result.parameters.q, message);
                     break;
-                  case "Poggit":
+                  case 'Poggit':
                     searchpoggit(r.result.parameters.q, message);
                     break;
                   default:
                     break;
                 }
                 break;
-              case "weather":
+              case 'weather':
                 getweather(r.result.parameters['geo-city'], message);
                 break;
-              case "give":
+              case 'give':
                 switch (r.result.parameters.item) {
-                  case "random SOFe":
+                  case 'random SOFe':
                     var sofehex = Math.floor(Math.random() * 16777215).toString(16);
                     var sofebghex = Math.floor(Math.random() * 16777215).toString(16);
                     var rot = getrandrot();
                     makesofe(message, sofehex, sofebghex, rot);
                     break;
-                  case "Chuck Norris fact":
+                  case 'Chuck Norris fact':
                     getchuck(message);
                     break;
-                  case "cat":
+                  case 'cat':
                     getcat(message);
                     break;
                   default:
@@ -250,7 +271,7 @@ client.on('message', message => {
 
         air.on('error', function(e) {
           console.log(e);
-          message.reply("An error occured while accessing the api.ai API!");
+          message.reply('An error occured while accessing the api.ai API!');
         });
 
         air.end();
@@ -263,21 +284,27 @@ client.on('message', message => {
         var number;
         if ((message.guild.id == '287339519500353537' || message.guild.id == '373199722573201408') && !args[1]) {
           if (!args[0]) {
-            message.reply(`Usage: ${config.prefix}issue <number> or ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`);
+            message.reply(
+              `Usage: ${config.prefix}issue <number> or ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`
+            );
             return;
           }
           repo = 'pmmp/pocketmine-mp';
           number = args[0];
         } else {
           if (!args[1]) {
-            message.reply(`Usage: ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`);
+            message.reply(
+              `Usage: ${config.prefix}issue <repo> <number>\nExample: ${config.prefix}issue boxofdevs/commandshop 2`
+            );
             return;
           }
           repo = args[0];
           number = args[1];
         }
         if (isNaN(number)) {
-          message.reply(`Usage: ${config.prefix}issue <repo> **<number>**\nExample: ${config.prefix}issue boxofdevs/commandshop **2**`);
+          message.reply(
+            `Usage: ${config.prefix}issue <repo> **<number>**\nExample: ${config.prefix}issue boxofdevs/commandshop **2**`
+          );
         } else {
           message.channel.startTyping();
           gitIssue(repo, Math.floor(number), message);
@@ -287,7 +314,9 @@ client.on('message', message => {
 
       case 'poll':
         if (!args[0]) {
-          message.reply(`Usage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`);
+          message.reply(
+            `Usage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`
+          );
         } else {
           if (!isNaN(args[args.length - 1])) {
             var time = Math.floor(args[args.length - 1]);
@@ -299,58 +328,84 @@ client.on('message', message => {
           if (newargs.length < 3) {
             message.reply('There need to be at least 2 choices and a title!');
           } else if (newargs.length > 21) {
-            message.reply("Because of limitation in reaction count on Discord you can't have more than 20 choices on a poll, sorry.");
+            message.reply(
+              "Because of limitation in reaction count on Discord you can't have more than 20 choices on a poll, sorry."
+            );
           } else {
             var choices = newargs.splice(1);
-            var poll = new Discord.RichEmbed().setTitle('Poll: ' + newargs[0]).setAuthor(message.author.username, message.author.avatarURL).setTimestamp(new Date());
-            message.channel.send({
-              embed: poll.setDescription("Hold on, processing reactions...\n**Don't vote yet!**")
-            }).then(function(msg) {
-              reactionPoll(choices.length, msg).then(function(validr) {
-                var polltext = "";
-                choices.forEach(function(c, i) {
-                  polltext += config.reaction_alphabet[i] + ' ' + c + '\n';
-                });
-                msg.edit({
-                  embed: poll.setDescription(polltext).setFooter('Click one of the reactions to vote!', 'https://himbeer.me/images/logo-monochrome.png')
-                }).then(function(msg) {
-                  if (time !== 0 && time >= 5 && time <= 3600) {
-                    msg.edit({
-                      embed: poll.addField("Notice:", "Poll will end in " + time + " seconds")
-                    }).then(function(msg) {
-                      client.setTimeout(function() {
-                        var result = "**Results:**\n";
-                        validr.forEach(function(r, i) {
-                          try {
-                            result += r + ' ' + choices[i] + ": " + (msg.reactions.get(r).count - 1) + ' votes\n';
-                          } catch (err) {
-                            result += 'Error\n';
-                          }
-                        });
-                        poll = poll.setDescription(result).setFooter('Poll ended!', 'https://himbeer.me/images/logo-monochrome.png').setTitle('Poll: ' + newargs[0] + ' (ended)');
-                        poll.fields = [];
-                        msg.edit({
-                          embed: poll
-                        });
-                      }, time * 1000);
+            var poll = new Discord.RichEmbed()
+              .setTitle('Poll: ' + newargs[0])
+              .setAuthor(message.author.username, message.author.avatarURL)
+              .setTimestamp(new Date());
+            message.channel
+              .send({
+                embed: poll.setDescription("Hold on, processing reactions...\n**Don't vote yet!**"),
+              })
+              .then(function(msg) {
+                reactionPoll(choices.length, msg)
+                  .then(function(validr) {
+                    var polltext = '';
+                    choices.forEach(function(c, i) {
+                      polltext += config.reaction_alphabet[i] + ' ' + c + '\n';
                     });
-                  } else if (time !== 0) {
-                    message.reply('Time must me number between 5 and 3600!');
-                  }
-                });
-              }).catch(err => {
-                var errexplain = '';
-                if (err.message == 'Maximum number of reactions reached (20)') {
-                  errexplain = "Reason: There were already 20 reactions on that message (can't fit more than 20 per message).\nHint: If you are a server owner you can remove the permission to react from other people while the bot is reacting.";
-                } else {
-                  console.log(err);
-                  errexplain = "Unknown error, this has been logged and the bot creator will take a look at the issue";
-                }
-                msg.edit({
-                  embed: poll.setDescription('There was an error while processing reactions:\n' + errexplain).setFooter("I'm sorry :/")
-                });
+                    msg
+                      .edit({
+                        embed: poll
+                          .setDescription(polltext)
+                          .setFooter(
+                            'Click one of the reactions to vote!',
+                            'https://himbeer.me/images/logo-monochrome.png'
+                          ),
+                      })
+                      .then(function(msg) {
+                        if (time !== 0 && time >= 5 && time <= 3600) {
+                          msg
+                            .edit({
+                              embed: poll.addField('Notice:', 'Poll will end in ' + time + ' seconds'),
+                            })
+                            .then(function(msg) {
+                              client.setTimeout(function() {
+                                var result = '**Results:**\n';
+                                validr.forEach(function(r, i) {
+                                  try {
+                                    result +=
+                                      r + ' ' + choices[i] + ': ' + (msg.reactions.get(r).count - 1) + ' votes\n';
+                                  } catch (err) {
+                                    result += 'Error\n';
+                                  }
+                                });
+                                poll = poll
+                                  .setDescription(result)
+                                  .setFooter('Poll ended!', 'https://himbeer.me/images/logo-monochrome.png')
+                                  .setTitle('Poll: ' + newargs[0] + ' (ended)');
+                                poll.fields = [];
+                                msg.edit({
+                                  embed: poll,
+                                });
+                              }, time * 1000);
+                            });
+                        } else if (time !== 0) {
+                          message.reply('Time must me number between 5 and 3600!');
+                        }
+                      });
+                  })
+                  .catch(err => {
+                    var errexplain = '';
+                    if (err.message == 'Maximum number of reactions reached (20)') {
+                      errexplain =
+                        "Reason: There were already 20 reactions on that message (can't fit more than 20 per message).\nHint: If you are a server owner you can remove the permission to react from other people while the bot is reacting.";
+                    } else {
+                      console.log(err);
+                      errexplain =
+                        'Unknown error, this has been logged and the bot creator will take a look at the issue';
+                    }
+                    msg.edit({
+                      embed: poll
+                        .setDescription('There was an error while processing reactions:\n' + errexplain)
+                        .setFooter("I'm sorry :/"),
+                    });
+                  });
               });
-            });
           }
         }
         break;
@@ -376,26 +431,40 @@ client.on('message', message => {
         var status = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('MagicalHourglass Information:')
-          .setDescription('MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.')
+          .setDescription(
+            'MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.'
+          )
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
           .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
           .addField('Author:', 'HimbeersaftLP#8553')
-          .addField('Invite:', '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)')
+          .addField(
+            'Invite:',
+            '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)'
+          )
           .addField('Stats:', stats);
         sendEmbed(message.channel, status);
         break;
 
       case 'convert':
         if (!args[2] | isNaN(args[0])) {
-          message.reply(`Usage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`);
+          message.reply(
+            `Usage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`
+          );
         } else {
           currencyConvert(args[0], args[1], args[2]).then(function(conv) {
             if (isNaN(conv)) {
               var desc = conv;
             } else {
-              var desc = 'Converted from: ' + args[1].toUpperCase() + '\nConversion result: ' + (Math.round(conv * 10000) / 10000) + ' ' + args[2].toUpperCase();
+              var desc =
+                'Converted from: ' +
+                args[1].toUpperCase() +
+                '\nConversion result: ' +
+                Math.round(conv * 10000) / 10000 +
+                ' ' +
+                args[2].toUpperCase();
             }
-            var convres = extras.embed('Conversion result:', desc, 'http://i.imgur.com/qbeZJNk.png')
+            var convres = extras
+              .embed('Conversion result:', desc, 'http://i.imgur.com/qbeZJNk.png')
               .setFooter('api.cryptonator.com', 'http://i.imgur.com/qbeZJNk.png')
               .setURL('https://www.cryptonator.com/');
             sendEmbed(message.channel, convres);
@@ -411,15 +480,17 @@ client.on('message', message => {
           var beforemock = args.join(' ');
           var mocked = '';
           for (var i = 0; i < beforemock.length; i++) {
-            mocked += (Math.random() >= 0.5) ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
+            mocked += Math.random() >= 0.5 ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
           }
-          message.channel.send(message.author + ": " + mocked);
+          message.channel.send(message.author + ': ' + mocked);
         }
         break;
 
       case 'xkcd':
         if (isNaN(args[0]) && typeof args[0] !== 'undefined') {
-          message.reply(`Usage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`);
+          message.reply(
+            `Usage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`
+          );
         } else {
           const xkcdurl = typeof args[0] === 'undefined' ? '' : '/' + encodeURIComponent(args[0]);
           request.get('https://xkcd.com' + xkcdurl + '/info.0.json', function(error, response, body) {
@@ -428,7 +499,7 @@ client.on('message', message => {
               var xkcde = new Discord.RichEmbed()
                 .setColor(Math.floor(Math.random() * 16777215))
                 .setTitle(xkcd.num + ': ' + xkcd.safe_title)
-                .setDescription('Alt text: ' +  xkcd.alt)
+                .setDescription('Alt text: ' + xkcd.alt)
                 .setImage(xkcd.img)
                 .setURL('https://xkcd.com/' + xkcd.num)
                 .setTimestamp(new Date(xkcd.year, xkcd.month, xkcd.day))
@@ -444,7 +515,9 @@ client.on('message', message => {
       case 'pmref':
       case 'ref':
         if (!args[0]) {
-          message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
+          message.reply(
+            `Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`
+          );
         } else {
           // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
           var matchfile = /(.*):([0-9]+)-?([0-9]+)?/.exec(args[0]);
@@ -452,7 +525,9 @@ client.on('message', message => {
             var match = ['', 'pmmp/PocketMine-MP/', 'master/src/' + matchfile[1], matchfile[2], matchfile[3]];
             gitLinePreview(match, message);
           } else {
-            message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
+            message.reply(
+              `Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`
+            );
           }
         }
         break;
@@ -463,7 +538,7 @@ client.on('message', message => {
         } else {
           var emote = message.guild.emojis.find('name', args[0]);
           if (emote === null) {
-            message.reply("Error: Emote not found!");
+            message.reply('Error: Emote not found!');
           } else {
             message.channel.send(emote.toString());
           }
@@ -477,7 +552,7 @@ client.on('message', message => {
         } else {
           var m = message.channel.messages.array()[message.channel.messages.array().length - 2];
           if (typeof m === 'undefined') {
-            message.reply('Error: Couldn\'t get the last message in this channel.');
+            message.reply("Error: Couldn't get the last message in this channel.");
           } else {
             message.reply(m.content.replace(match[1], match[2]));
           }
@@ -489,34 +564,84 @@ client.on('message', message => {
         var help = new Discord.RichEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('Help for MagicalHourglass:')
-          .setDescription('Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:')
+          .setDescription(
+            'Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:'
+          )
           .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
           .addField(`${config.prefix}randomsofe`, 'Generate a random SOFe avatar')
-          .addField(`${config.prefix}makesofe`, `Usage: ${config.prefix}makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ${config.prefix}makesofe FFEE00 FFFFFF 90`)
+          .addField(
+            `${config.prefix}makesofe`,
+            `Usage: ${config.prefix}makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ${config.prefix}makesofe FFEE00 FFFFFF 90`
+          )
           .addField(`${config.prefix}say`, `Let me say something for you...\nExample: ${config.prefix}say Hi`)
-          .addField(`${config.prefix}8ball`, `Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ${config.prefix}8ball Am I great?`)
-          .addField(`${config.prefix}weather`, `Get the current weather of a specific cifm OpenWeatherMap\nUsage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`)
+          .addField(
+            `${config.prefix}8ball`,
+            `Uses 8ball.delegator.com  to ask the magic 8-Ball for a question\nExample: ${config.prefix}8ball Am I great?`
+          )
+          .addField(
+            `${config.prefix}weather`,
+            `Get the current weather of a specific cifm OpenWeatherMap\nUsage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`
+          )
           .addField(`${config.prefix}cat`, 'Get a random cat image from random.cat')
           .addField(`${config.prefix}fish`, 'Go fishing!')
-          .addField(`${config.prefix}t`, `Talk with Program-O...\nUsage: ${config.prefix}t <Your message>\nExample: ${config.prefix}t How are you?`)
+          .addField(
+            `${config.prefix}t`,
+            `Talk with Program-O...\nUsage: ${config.prefix}t <Your message>\nExample: ${config.prefix}t How are you?`
+          )
           .addField(`${config.prefix}whoami`, 'Get information about yourself.')
-          .addField(`${config.prefix}whois`, `Get information about another member.\nUsage: ${config.prefix}whois @mentionOfaUser\nExample: ${config.prefix}whois @HimbeersaftLP#8553`)
-          .addField(`${config.prefix}googlepic`, `Search Google for images.\nUsage: ${config.prefix}googlepic <search term>\nExample: ${config.prefix}googlepic boxofdevs team`)
-          .addField(`${config.prefix}poggit`, `Search for a plugin release on Poggit.\nUsage: ${config.prefix}poggit <plugin name>\nExample: ${config.prefix}poggit DevTools`)
-          .addField(`${config.prefix}channels`, `Shows a list of channels of the provided type.\nUsage: ${config.prefix}channel <text|voice>`)
+          .addField(
+            `${config.prefix}whois`,
+            `Get information about another member.\nUsage: ${config.prefix}whois @mentionOfaUser\nExample: ${config.prefix}whois @HimbeersaftLP#8553`
+          )
+          .addField(
+            `${config.prefix}googlepic`,
+            `Search Google for images.\nUsage: ${config.prefix}googlepic <search term>\nExample: ${config.prefix}googlepic boxofdevs team`
+          )
+          .addField(
+            `${config.prefix}poggit`,
+            `Search for a plugin release on Poggit.\nUsage: ${config.prefix}poggit <plugin name>\nExample: ${config.prefix}poggit DevTools`
+          )
+          .addField(
+            `${config.prefix}channels`,
+            `Shows a list of channels of the provided type.\nUsage: ${config.prefix}channel <text|voice>`
+          )
           .addField(`${config.prefix}chuck`, `Get a random Chuck Norris fact from api.chucknorris.io.`)
           .addField(`${config.prefix}ai`, 'Let the AI execute commands, just try it!')
-          .addField(`${config.prefix}issue or ${config.prefix}pr`, `Find an issue/pull request on GitHub.\nUsage: ${config.prefix}issue <repo> <number> (on PMMP Discord also ${config.prefix}issue <number> for the PMMP repo)\nExample: ${config.prefix}issue boxofdevs/commandshop 2`)
-          .addField(`${config.prefix}poll`, `Make a poll using reactions!\nUsage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`)
+          .addField(
+            `${config.prefix}issue or ${config.prefix}pr`,
+            `Find an issue/pull request on GitHub.\nUsage: ${config.prefix}issue <repo> <number> (on PMMP Discord also ${config.prefix}issue <number> for the PMMP repo)\nExample: ${config.prefix}issue boxofdevs/commandshop 2`
+          )
+          .addField(
+            `${config.prefix}poll`,
+            `Make a poll using reactions!\nUsage: ${config.prefix}poll <title|choice1|choice2|choice3|...> [optional: time in seconds]\nExample: What do you prefer?|Potatoes|Trains|Turtles|Juice boxes`
+          )
           .addField(`${config.prefix}info or ${config.prefix}status`, 'Display information and stats about this bot.')
-          .addField(`${config.prefix}convert`, `Convert currencies (supports cryptocurrencys)\nUsage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`)
-          .addField(`${config.prefix}mock`, `maKeS tHE TeXt loOK lIkE tHiS\nUsage: ${config.prefix}mock <text>\nExample: ${config.prefix}mock How can I make an Email address`)
-          .addField(`${config.prefix}xkcd`, `Gets the given or most recent comic from xkcd.com.\nUsage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`)
-          .addField(`${config.prefix}pmref or ${config.prefix}ref`, `Gets a line preview from the PocketMine GitHub.\nUsage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`)
-          .addField(`${config.prefix}emote`, `Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`)
-          .addField(`${config.prefix}s`, `Find and replace text in the last message of the channel your\'re in.\nUsage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`);
-        message.author.send("", {
-          embed: help
+          .addField(
+            `${config.prefix}convert`,
+            `Convert currencies (supports cryptocurrencys)\nUsage: ${config.prefix}convert <amount> <from> <to>\nExample: ${config.prefix}convert 2 btc usd`
+          )
+          .addField(
+            `${config.prefix}mock`,
+            `maKeS tHE TeXt loOK lIkE tHiS\nUsage: ${config.prefix}mock <text>\nExample: ${config.prefix}mock How can I make an Email address`
+          )
+          .addField(
+            `${config.prefix}xkcd`,
+            `Gets the given or most recent comic from xkcd.com.\nUsage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`
+          )
+          .addField(
+            `${config.prefix}pmref or ${config.prefix}ref`,
+            `Gets a line preview from the PocketMine GitHub.\nUsage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`
+          )
+          .addField(
+            `${config.prefix}emote`,
+            `Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`
+          )
+          .addField(
+            `${config.prefix}s`,
+            `Find and replace text in the last message of the channel your\'re in.\nUsage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`
+          );
+        message.author.send('', {
+          embed: help,
         });
         break;
       default:
@@ -526,17 +651,16 @@ client.on('message', message => {
 
         // If a command file exists, load and execute it
         if (fs.existsSync(`./src/commands/${cmd}.js`)) {
-          const command = require(`./commands/${cmd}.js`)
-          command.execute(message, args)
+          const command = require(`./commands/${cmd}.js`);
+          command.execute(message, args);
         }
 
         break;
     }
-    if(commandsuccess && message.guild.id == config.mainguild) message.react(juice);
+    if (commandsuccess && message.guild.id == config.mainguild) message.react(juice);
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
-
   } else if (message.content.match(twitterregex) !== null) {
-    var alllinks = "";
+    var alllinks = '';
     message.content.match(twitterregex).forEach(function(tlink) {
       if (tlink !== 'https://mobile.twitter.com' && tlink !== 'http://mobile.twitter.com') {
         alllinks += tlink.replace('mobile.twitter.com', 'twitter.com') + '\n';
@@ -544,7 +668,7 @@ client.on('message', message => {
         return;
       }
     });
-    if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
+    if (alllinks !== '') message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   } else if (githubregex.test(message.content)) {
     var match = githubregex.exec(message.content);
     gitLinePreview(match, message);
@@ -552,21 +676,22 @@ client.on('message', message => {
 });
 
 if (firstrun == 1) {
-  client.login(config.discordtoken)
+  client
+    .login(config.discordtoken)
     .then(function(r) {
-      console.log("Login successful! " + r);
+      console.log('Login successful! ' + r);
     })
     .catch(function(r) {
-      console.error("Login not successful! " + r);
+      console.error('Login not successful! ' + r);
     });
   firstrun = 0;
 } else {
-  console.log("Not logging in again for preventing bot token reset!");
+  console.log('Not logging in again for preventing bot token reset!');
 }
 
 function sendEmbed(channel, embed) {
   channel.send({
-    embed: embed
+    embed: embed,
   });
 }
 
@@ -585,51 +710,60 @@ function reactionPoll(choices, message) {
       if (ind == 0) {
         fr = message.react(rt);
       } else if (ind === choices - 1) {
-        fr.then(() =>
-          message.react(rt)
-        ).catch((err) =>
-          reject(err)
-        ).then(() =>
-          resolve(reactions)
-        );
+        fr.then(() => message.react(rt))
+          .catch(err => reject(err))
+          .then(() => resolve(reactions));
       } else {
-        fr = fr.then(() =>
-          message.react(rt)
-        ).catch((err) =>
-          reject(err)
-        );
+        fr = fr.then(() => message.react(rt)).catch(err => reject(err));
       }
     });
   });
 }
 
-function gsessionid(message, type = "full") {
+function gsessionid(message, type = 'full') {
   var date = new Date();
-  if (type == "full") {
-    return message.author.id + '-' + message.channel.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
-  } else if (type == "member") {
+  if (type == 'full') {
+    return (
+      message.author.id +
+      '-' +
+      message.channel.id +
+      '-' +
+      date.getUTCFullYear() +
+      '-' +
+      date.getUTCMonth() +
+      '-' +
+      date.getUTCDate()
+    );
+  } else if (type == 'member') {
     return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
   }
 }
 
 function getweather(q, message) {
-  request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + q, function(error, response, body) {
+  request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + q, function(
+    error,
+    response,
+    body
+  ) {
     if (!error && response.statusCode == 200) {
       var w = JSON.parse(body);
-      var fahrenheit = (w.main.temp * 9 / 5 + 32).toFixed(2);
+      var fahrenheit = ((w.main.temp * 9) / 5 + 32).toFixed(2);
       var mph = (w.wind.speed * 2.23693629205).toFixed(1);
       var wth = new Discord.RichEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
         .setDescription(w.weather[0].main)
-        .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + ".png")
+        .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + '.png')
         .addField('Weather description', w.weather[0].description)
         .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
         .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
         .addField('Pressure', w.main.pressure + ' hPa')
         .addField('Humidity', w.main.humidity + ' %')
         .addField('Cloudiness', w.clouds.all + ' %')
-        .setFooter('Data from OpenWeatherMap', 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png')
+        .setFooter(
+          'Data from OpenWeatherMap',
+          'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png'
+        );
       sendEmbed(message.channel, wth);
     } else {
       message.reply('City not found or an error occured while accessing the OpenWatherMap API!');
@@ -655,28 +789,52 @@ function getcat(message) {
 }
 
 function googlepic(q, message, r = 1) {
-  request.get('https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(q) + '&cx=' + config.google_cse_id + '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googlekey, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var g = JSON.parse(body);
-      var ri = Math.floor(Number(r));
-      if (ri <= 0 || ri > g.items.length) {
-        ri = 0;
-        message.reply('This result index is invalid!');
+  request.get(
+    'https://www.googleapis.com/customsearch/v1?q=' +
+      encodeURIComponent(q) +
+      '&cx=' +
+      config.google_cse_id +
+      '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' +
+      config.googlekey,
+    function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var g = JSON.parse(body);
+        var ri = Math.floor(Number(r));
+        if (ri <= 0 || ri > g.items.length) {
+          ri = 0;
+          message.reply('This result index is invalid!');
+        } else {
+          ri = ri - 1;
+        }
+        var gres = new Discord.RichEmbed()
+          .setColor(Math.floor(Math.random() * 16777215))
+          .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
+          .setDescription(
+            'Image URL: ' +
+              g.items[ri].link +
+              '\nImage from: ' +
+              g.items[ri].image.contextLink +
+              '\n\nResult ' +
+              (ri + 1).toString() +
+              ' of ' +
+              g.items.length.toString() +
+              ' loaded results.\n,googlepic <search term> -r <number> to see the other results.'
+          )
+          .setImage(g.items[ri].link);
+        message.reply(
+          g.searchInformation.formattedTotalResults +
+            ' results in ' +
+            g.searchInformation.formattedSearchTime +
+            ' seconds:',
+          {
+            embed: gres,
+          }
+        );
       } else {
-        ri = ri - 1;
+        message.reply('An error occured while accessing the Google Custom Search API!');
       }
-      var gres = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random() * 16777215))
-        .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
-        .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\n,googlepic <search term> -r <number> to see the other results.')
-        .setImage(g.items[ri].link);
-      message.reply(g.searchInformation.formattedTotalResults + ' results in ' + g.searchInformation.formattedSearchTime + ' seconds:', {
-        embed: gres
-      });
-    } else {
-      message.reply('An error occured while accessing the Google Custom Search API!');
     }
-  });
+  );
 }
 
 function searchpoggit(plugin, message) {
@@ -721,7 +879,10 @@ function getchuck(message) {
         .setDescription(cn.value)
         .setThumbnail(cn.icon_url)
         .setURL(cn.url)
-        .setFooter('Fact from api.chucknorris.io', 'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png');
+        .setFooter(
+          'Fact from api.chucknorris.io',
+          'https://assets.chucknorris.host/img/chucknorris_logo_coloured_small@2x.png'
+        );
       sendEmbed(message.channel, cj);
     } else {
       message.reply("You can't access the Chuck Norris API, the Chuck Norris API accesses you!");
@@ -730,58 +891,89 @@ function getchuck(message) {
 }
 
 function gitIssue(repo, number, message) {
-  request.get({
-    url: 'https://api.github.com/repos/' + repo + '/issues/' + encodeURIComponent(number),
-    headers: {
-      'User-Agent': 'MagicalHourglass',
-      'Accept': 'application/vnd.github.squirrel-girl-preview'
-    }
-  }, function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var g = JSON.parse(body);
-      var ilabels = "";
-      g.labels.forEach(function(label, i) {
-        ilabels += label.name + ((i !== g.labels.length - 1) ? ', ' : "");
-      });
-      var gissue = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random() * 16777215))
-        .setTitle(((typeof g.pull_request == "undefined") ? 'Issue' : 'Pull request') + ' #' + number + ': ' + g.title)
-        .addField('Information:', '__Created by__ ' + g.user.login + '\n__State:__ ' + g.state + '\n__Labels:__ ' + ((g.labels !== []) ? ilabels : 'none') + '\n__Comments:__ ' + g.comments + '\n__Locked:__ ' + g.locked + '\n__Reactions:__\n' + g.reactions['+1'] + ' 👍 | ' + g.reactions['-1'] + ' 👎 | ' + g.reactions.laugh + ' 😄 | ' + g.reactions.confused + ' 😕 | ' + g.reactions.heart + ' ❤️ | ' + g.reactions.hooray + ' 🎉')
-        .setThumbnail(g.user.avatar_url)
-        .setTimestamp(new Date(g.created_at))
-        .setURL(g.html_url)
-        .setFooter('Data from api.github.com', 'https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
-      if (removeMd(g.body).length > 2045) {
-        gissue.addField('Notice:', 'The Description has been shortened to fit into an embed');
-        gissue.setDescription((removeMd(g.body).substring(0, 2045)) + '...');
+  request.get(
+    {
+      url: 'https://api.github.com/repos/' + repo + '/issues/' + encodeURIComponent(number),
+      headers: {
+        'User-Agent': 'MagicalHourglass',
+        Accept: 'application/vnd.github.squirrel-girl-preview',
+      },
+    },
+    function(error, response, body) {
+      if (!error && response.statusCode == 200) {
+        var g = JSON.parse(body);
+        var ilabels = '';
+        g.labels.forEach(function(label, i) {
+          ilabels += label.name + (i !== g.labels.length - 1 ? ', ' : '');
+        });
+        var gissue = new Discord.RichEmbed()
+          .setColor(Math.floor(Math.random() * 16777215))
+          .setTitle((typeof g.pull_request == 'undefined' ? 'Issue' : 'Pull request') + ' #' + number + ': ' + g.title)
+          .addField(
+            'Information:',
+            '__Created by__ ' +
+              g.user.login +
+              '\n__State:__ ' +
+              g.state +
+              '\n__Labels:__ ' +
+              (g.labels !== [] ? ilabels : 'none') +
+              '\n__Comments:__ ' +
+              g.comments +
+              '\n__Locked:__ ' +
+              g.locked +
+              '\n__Reactions:__\n' +
+              g.reactions['+1'] +
+              ' 👍 | ' +
+              g.reactions['-1'] +
+              ' 👎 | ' +
+              g.reactions.laugh +
+              ' 😄 | ' +
+              g.reactions.confused +
+              ' 😕 | ' +
+              g.reactions.heart +
+              ' ❤️ | ' +
+              g.reactions.hooray +
+              ' 🎉'
+          )
+          .setThumbnail(g.user.avatar_url)
+          .setTimestamp(new Date(g.created_at))
+          .setURL(g.html_url)
+          .setFooter('Data from api.github.com', 'https://assets-cdn.github.com/images/modules/logos_page/Octocat.png');
+        if (removeMd(g.body).length > 2045) {
+          gissue.addField('Notice:', 'The Description has been shortened to fit into an embed');
+          gissue.setDescription(removeMd(g.body).substring(0, 2045) + '...');
+        } else {
+          gissue.setDescription(removeMd(g.body));
+        }
+        sendEmbed(message.channel, gissue);
+      } else if (!error && response.statusCode == 404) {
+        message.reply('Error: Repo or issue not found.');
+      } else if (!error && response.statusCode == 410) {
+        message.reply('Error: The requested issue was deleted.');
       } else {
-        gissue.setDescription(removeMd(g.body));
+        message.reply('An error occured while accessing the GitHub API!');
       }
-      sendEmbed(message.channel, gissue);
-    } else if (!error && response.statusCode == 404) {
-      message.reply('Error: Repo or issue not found.');
-    } else if (!error && response.statusCode == 410) {
-      message.reply('Error: The requested issue was deleted.');
-    } else {
-      message.reply('An error occured while accessing the GitHub API!');
     }
-  });
+  );
 }
 
 function currencyConvert(amount, from, to) {
   return new Promise(function(resolve) {
-    request.get('https://api.cryptonator.com/api/ticker/' + encodeURIComponent(from) + '-' + encodeURIComponent(to), function(error, response, body) {
-      if (!error && response.statusCode == 200) {
-        var con = JSON.parse(body);
-        if (con.success === false) {
-          resolve('Error: ' + con.error);
+    request.get(
+      'https://api.cryptonator.com/api/ticker/' + encodeURIComponent(from) + '-' + encodeURIComponent(to),
+      function(error, response, body) {
+        if (!error && response.statusCode == 200) {
+          var con = JSON.parse(body);
+          if (con.success === false) {
+            resolve('Error: ' + con.error);
+          } else {
+            resolve(amount * con.ticker.price);
+          }
         } else {
-          resolve(amount * con.ticker.price);
+          resolve('An error occured while accessing the Cryptonator API!');
         }
-      } else {
-        resolve('An error occured while accessing the Cryptonator API!');
       }
-    });
+    );
   });
 }
 
@@ -792,7 +984,7 @@ function gitLinePreview(match, message) {
       var lines = body.split('\n');
       if (typeof lines[match[3] - 1] === 'undefined') return;
       match[3] = Number(match[3]);
-      if (typeof match[4] === "undefined") {
+      if (typeof match[4] === 'undefined') {
         match[4] = match[3];
         var from = match[3] - 5;
         var to = match[3] + 5;
@@ -813,13 +1005,15 @@ function gitLinePreview(match, message) {
         }
       }
       var lang = fileendregex.exec(match[2]) ? fileendregex.exec(match[2])[1] : '';
-      if (lang === "kt") lang = "kotlin"; // Workaround for Kotlin syntax highlighting
-      if (lang === "svg") lang = "xml"; // Workaround for svg syntax highlighting
-      var cleanFileName = match[2].replace(/\?.+/, ""); // Remove HTTP GET Query Parameters
+      if (lang === 'kt') lang = 'kotlin'; // Workaround for Kotlin syntax highlighting
+      if (lang === 'svg') lang = 'xml'; // Workaround for svg syntax highlighting
+      var cleanFileName = match[2].replace(/\?.+/, ''); // Remove HTTP GET Query Parameters
       var codemsg = `Showing lines ${from} - ${to} of ${cleanFileName}` + '```' + lang + '\n';
       for (i = from; i <= to; i++) {
         if (typeof lines[i - 1] !== 'undefined') {
-          codemsg += `${((i >= match[3] && i <= match[4]) ? ">" : " ")}${(extras.nlength(i) < extras.nlength(to) ? " " : "")}${i} ${lines[i - 1]}\n`;
+          codemsg += `${i >= match[3] && i <= match[4] ? '>' : ' '}${
+            extras.nlength(i) < extras.nlength(to) ? ' ' : ''
+          }${i} ${lines[i - 1]}\n`;
         }
       }
       message.reply(codemsg + '```');
@@ -829,7 +1023,7 @@ function gitLinePreview(match, message) {
 
 function whois(member, mtn = true) {
   var m = member.user;
-  var rls = member.roles.map((r) => r.name).join(', ');
+  var rls = member.roles.map(r => r.name).join(', ');
   var uemb = new extras.UnrealEmbed()
     .addField('Username', m.username)
     .addField('ID', m.id)
@@ -853,7 +1047,7 @@ function whois(member, mtn = true) {
 }
 
 function getrandrot() {
-  $rand = Math.floor((Math.random() * 4) + 1);
+  $rand = Math.floor(Math.random() * 4 + 1);
   if ($rand == 1) {
     return 0;
   } else if ($rand == 2) {
