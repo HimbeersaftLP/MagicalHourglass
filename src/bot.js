@@ -62,14 +62,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'weather':
-        if (!args[0]) {
-          message.reply(`Usage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`);
-          return;
-        }
-        getweather(args[0], message);
-        break;
-
       case 'cat':
         getcat(message);
         break;
@@ -242,9 +234,9 @@ client.on('message', message => {
                     break;
                 }
                 break;
-              case 'weather':
-                getweather(r.result.parameters['geo-city'], message);
-                break;
+              // case 'weather':
+              //   getweather(r.result.parameters['geo-city'], message);
+              //   break;
               case 'give':
                 switch (r.result.parameters.item) {
                   case 'random SOFe':
@@ -737,38 +729,6 @@ function gsessionid(message, type = 'full') {
   } else if (type == 'member') {
     return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
   }
-}
-
-function getweather(q, message) {
-  request.get('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + q, function(
-    error,
-    response,
-    body
-  ) {
-    if (!error && response.statusCode == 200) {
-      var w = JSON.parse(body);
-      var fahrenheit = ((w.main.temp * 9) / 5 + 32).toFixed(2);
-      var mph = (w.wind.speed * 2.23693629205).toFixed(1);
-      var wth = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random() * 16777215))
-        .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
-        .setDescription(w.weather[0].main)
-        .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + '.png')
-        .addField('Weather description', w.weather[0].description)
-        .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
-        .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
-        .addField('Pressure', w.main.pressure + ' hPa')
-        .addField('Humidity', w.main.humidity + ' %')
-        .addField('Cloudiness', w.clouds.all + ' %')
-        .setFooter(
-          'Data from OpenWeatherMap',
-          'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png'
-        );
-      sendEmbed(message.channel, wth);
-    } else {
-      message.reply('City not found or an error occured while accessing the OpenWatherMap API!');
-    }
-  });
 }
 
 function getcat(message) {
