@@ -15,6 +15,8 @@ var ai = apiai(config.apiai_token);
 const util = require('util');
 const crypto = require('crypto');
 
+const fs = require('fs');
+
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
 
@@ -61,16 +63,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'randomsofe':
-        const randomsofe = require('./commands/randomsofe')
-        randomsofe.execute(message, args)
-        break;
-
-      case 'makesofe':
-        const makesofe = require('./commands/makesofe')
-        makesofe.execute(message, args)
-        break;
-
       case 'say':
         message.delete();
         if(message.mentions.everyone ||
@@ -548,6 +540,13 @@ client.on('message', message => {
         if (message.guild.id == config.mainguild) {
           commandsuccess = false;
         }
+
+        // If a command file exists, load and execute it
+        if (fs.existsSync(`./src/commands/${cmd}.js`)) {
+          const command = require(`./commands/${cmd}.js`)
+          command.execute(message, args)
+        }
+
         break;
     }
     if(commandsuccess && message.guild.id == config.mainguild) message.react(juice);
