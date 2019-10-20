@@ -4,6 +4,10 @@ module.exports = {
 	usage: '<message>',
 	examples: ['Hi'],
 	execute(message, args) {
+		if (!args[0]) {
+			return
+		}
+		
 		message.delete();
 
 		if (message.mentions.everyone) {

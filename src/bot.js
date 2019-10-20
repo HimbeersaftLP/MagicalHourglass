@@ -63,11 +63,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case '8ball':
-        var rnd = Math.floor(Math.random() * config.eightball.length);
-        message.reply(config.eightball[rnd]);
-        break;
-
       case 'weather':
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`);
