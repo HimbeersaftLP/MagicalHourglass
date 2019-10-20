@@ -1,9 +1,9 @@
-const config = require('./config.json');
+const config = require('../config.json');
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const extras = require('./extras.js');
+const extras = require('../extras.js');
 
 var S = require('string');
 const removeMd = require('remove-markdown');
@@ -64,10 +64,8 @@ client.on('message', message => {
     var commandsuccess = true;
     switch (cmd) {
       case 'randomsofe':
-        var sofehex = Math.floor(Math.random() * 16777215).toString(16);
-        var sofebghex = Math.floor(Math.random() * 16777215).toString(16);
-        var rot = getrandrot();
-        makesofe(message, sofehex, sofebghex, rot);
+        const randomsofe = require('./commands/randomsofe')
+        randomsofe.execute(message, args)
         break;
 
       case 'makesofe':

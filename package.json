@@ -2,7 +2,7 @@
   "name": "magicalhourglass",
   "version": "1.0.0",
   "description": "A magic Discord bot, originally made for the BoxOfDevs Discord.",
-  "main": "bot.js",
+  "main": "src/bot.js",
   "dependencies": {
     "apiai": "^4.0.3",
     "discord.js": "^11.5.1",
@@ -13,7 +13,7 @@
   "devDependencies": {},
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node bot.js"
+    "start": "node ."
   },
   "repository": {
     "type": "git",
