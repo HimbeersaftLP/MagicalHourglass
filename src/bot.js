@@ -67,20 +67,8 @@ client.on('message', message => {
         break;
 
       case 'makesofe':
-        if (message.content.includes('#')) {
-          message.reply("Please don't use #'s or any other symbols for the hex codes in this command!");
-        } else if (args[0] && args[1] && !args[2]) {
-          var fhex = args[0];
-          var bhex = args[1];
-          makesofe(message, fhex, bhex);
-        } else if (args[0] && args[1] && args[2]) {
-          var fhex = args[0];
-          var bhex = args[1];
-          var rot = args[2];
-          makesofe(message, fhex, bhex, rot);
-        } else {
-          message.reply(`Usage: ${config.prefix}makesofe <hexcode> <hexcode for background> [rotation in degrees]\nExample: ${config.prefix}makesofe FFEE00 FFFFFF 90`);
-        }
+        const makesofe = require('./commands/makesofe')
+        makesofe.execute(message, args)
         break;
 
       case 'say':
