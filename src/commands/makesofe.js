@@ -1,7 +1,7 @@
 module.exports = {
 	name: 'makesofe',
 	description: 'Generate a random SOFe avatar',
-	usage: '<hexcode> <hexcode for background> [rotation in degrees]',
+	usage: '[hexcode] [hexcode for background] [rotation in degrees]',
 	examples: ['FFEE00 FFFFFF 90'],
 	execute(message, args) {
 		const hex = args[0] || '63d957';
