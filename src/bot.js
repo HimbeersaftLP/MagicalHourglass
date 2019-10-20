@@ -62,10 +62,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'cat':
-        getcat(message);
-        break;
-
       case 'fish':
         var cfish = fish[Math.floor(Math.random() * fish.length)];
         message.reply('You caught a ' + cfish + '.');
@@ -248,9 +244,9 @@ client.on('message', message => {
                   case 'Chuck Norris fact':
                     getchuck(message);
                     break;
-                  case 'cat':
-                    getcat(message);
-                    break;
+                  // case 'cat':
+                  //   getcat(message);
+                  //   break;
                   default:
                     break;
                 }
@@ -729,23 +725,6 @@ function gsessionid(message, type = 'full') {
   } else if (type == 'member') {
     return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
   }
-}
-
-function getcat(message) {
-  request.get('http://aws.random.cat/meow', function(error, response, body) {
-    if (!error && response.statusCode == 200) {
-      var c = JSON.parse(body);
-      var cat = new Discord.RichEmbed()
-        .setColor(Math.floor(Math.random() * 16777215))
-        .setTitle("Here's your random cat:")
-        .setDescription('Link: [Click Here](' + c.file + ')')
-        .setImage(c.file)
-        .setFooter('Randomly generated cat link by random.cat');
-      sendEmbed(message.channel, cat);
-    } else {
-      message.reply('An error occured while accessing the random.cat API!');
-    }
-  });
 }
 
 function googlepic(q, message, r = 1) {
