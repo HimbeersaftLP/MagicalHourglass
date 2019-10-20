@@ -63,18 +63,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'say':
-        message.delete();
-        if(message.mentions.everyone ||
-          message.content.includes("@everyone") ||
-          message.content.includes("@here")
-        ){
-          message.reply("You cannot mention everyone/here");
-          break;
-        }
-        message.channel.send(args.join(' '));
-        break;
-
       case '8ball':
         var rnd = Math.floor(Math.random() * config.eightball.length);
         message.reply(config.eightball[rnd]);
