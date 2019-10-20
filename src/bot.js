@@ -62,12 +62,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'fish':
-        var cfish = fish[Math.floor(Math.random() * fish.length)];
-        message.reply('You caught a ' + cfish + '.');
-        message.react(cfish);
-        break;
-
       case 't':
         message.channel.startTyping();
         request.get(
