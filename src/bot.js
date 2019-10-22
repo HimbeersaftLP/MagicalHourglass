@@ -17,6 +17,8 @@ const crypto = require('crypto');
 
 const fs = require('fs');
 
+const utils = require('./utils');
+
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
 
@@ -62,24 +64,24 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 't':
-        message.channel.startTyping();
-        request.get(
-          'https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' +
-            encodeURIComponent(args.join(' ')) +
-            '&convo_id=' +
-            gsessionid(message),
-          function(error, response, body) {
-            if (!error && response.statusCode == 200) {
-              var b = JSON.parse(body);
-              message.reply(b.conversation.say.bot);
-            } else {
-              message.reply('An error occured while accessing the Program-O API!');
-            }
-            message.channel.stopTyping();
-          }
-        );
-        break;
+      // case 't':
+      //   message.channel.startTyping();
+      //   request.get(
+      //     'https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' +
+      //       encodeURIComponent(args.join(' ')) +
+      //       '&convo_id=' +
+      //       utils.generateSessionId(message),
+      //     function(error, response, body) {
+      //       if (!error && response.statusCode == 200) {
+      //         var b = JSON.parse(body);
+      //         message.reply(b.conversation.say.bot);
+      //       } else {
+      //         message.reply('An error occured while accessing the Program-O API!');
+      //       }
+      //       message.channel.stopTyping();
+      //     }
+      //   );
+      //   break;
 
       case 'whoami':
         sendEmbed(message.channel, whois(message.member, false));
@@ -205,7 +207,7 @@ client.on('message', message => {
       case 'ai':
         message.channel.startTyping();
         var air = ai.textRequest(args.join(' '), {
-          sessionId: gsessionid(message, 'member'),
+          sessionId: utils.generateSessionId(message, 'member'),
         });
 
         air.on('response', function(r) {
@@ -700,25 +702,6 @@ function reactionPoll(choices, message) {
       }
     });
   });
-}
-
-function gsessionid(message, type = 'full') {
-  var date = new Date();
-  if (type == 'full') {
-    return (
-      message.author.id +
-      '-' +
-      message.channel.id +
-      '-' +
-      date.getUTCFullYear() +
-      '-' +
-      date.getUTCMonth() +
-      '-' +
-      date.getUTCDate()
-    );
-  } else if (type == 'member') {
-    return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
-  }
 }
 
 function googlepic(q, message, r = 1) {
