@@ -7,28 +7,31 @@ module.exports = {
     const fish = [
       {
         emoji: '🐠',
-        name: 'tropical fish'
-      }, {
+        name: 'tropical fish',
+      },
+      {
         emoji: '🐟',
-        name: 'fish'
-      }, {
+        name: 'fish',
+      },
+      {
         emoji: '🐡',
-        name: 'blowfish'
-      }, {
+        name: 'blowfish',
+      },
+      {
         emoji: '🐬',
-        name: 'dolphin'
-      }, 
+        name: 'dolphin',
+      },
       {
         emoji: '🐳',
-        name: 'spouting whale'
-      }, 
+        name: 'spouting whale',
+      },
       {
         emoji: '🐋',
-        name: 'whale'
-      }
+        name: 'whale',
+      },
     ];
     const caughtFish = fish[Math.floor(Math.random() * fish.length)];
     message.reply(`You caught a **${caughtFish.name}**!`);
-    message.channel.send(caughtFish.emoji)
+    message.channel.send(caughtFish.emoji);
   },
 };

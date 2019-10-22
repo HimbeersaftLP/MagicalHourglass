@@ -10,10 +10,14 @@ module.exports = {
     message.channel.startTyping();
 
     request
-      .get(`https://program-o.com/v3/chat.php?bot_id=6&format=json&say=${encodeURIComponent(args.join(' '))}&convo_id=${utils.generateSessionId(message)}`)
+      .get(
+        `https://program-o.com/v3/chat.php?bot_id=6&format=json&say=${encodeURIComponent(
+          args.join(' ')
+        )}&convo_id=${utils.generateSessionId(message)}`
+      )
       .then(body => {
         const json = JSON.parse(body);
-        
+
         message.reply(json.conversation.say.bot);
       })
       .catch(() => {
@@ -21,6 +25,6 @@ module.exports = {
       })
       .finally(() => {
         message.channel.stopTyping();
-      })
+      });
   },
 };

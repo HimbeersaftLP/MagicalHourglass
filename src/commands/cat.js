@@ -8,7 +8,7 @@ module.exports = {
       .get(`http://aws.random.cat/meow`)
       .then(body => {
         const json = JSON.parse(body);
-        
+
         message.channel.send({
           files: [json.file],
         });

@@ -12,11 +12,11 @@ module.exports = {
 
     if (!member) {
       message.reply('Member not found!');
-      return
+      return;
     }
 
     const user = member.user;
-    const roles = message.member.roles.map(role => role.name).join(', ')
+    const roles = message.member.roles.map(role => role.name).join(', ');
 
     const unrealEmbed = new extras.UnrealEmbed()
       .addField('Username', user.username)
@@ -28,12 +28,12 @@ module.exports = {
       .addField('Roles', roles)
       .addField('Status', user.presence.status);
 
-     if (user.presence.game) {
-       unrealEmbed.addField('Game', user.presence.game.name);
-     }
+    if (user.presence.game) {
+      unrealEmbed.addField('Game', user.presence.game.name);
+    }
 
-     const embed = extras.embed(user.username, unrealEmbed.toString(), user.displayAvatarURL);
+    const embed = extras.embed(user.username, unrealEmbed.toString(), user.displayAvatarURL);
 
-     message.channel.send({ embed })
+    message.channel.send({ embed });
   },
 };
