@@ -64,25 +64,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      // case 't':
-      //   message.channel.startTyping();
-      //   request.get(
-      //     'https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' +
-      //       encodeURIComponent(args.join(' ')) +
-      //       '&convo_id=' +
-      //       utils.generateSessionId(message),
-      //     function(error, response, body) {
-      //       if (!error && response.statusCode == 200) {
-      //         var b = JSON.parse(body);
-      //         message.reply(b.conversation.say.bot);
-      //       } else {
-      //         message.reply('An error occured while accessing the Program-O API!');
-      //       }
-      //       message.channel.stopTyping();
-      //     }
-      //   );
-      //   break;
-
       case 'whoami':
         sendEmbed(message.channel, whois(message.member, false));
         break;
