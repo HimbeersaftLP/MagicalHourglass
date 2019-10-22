@@ -3,7 +3,7 @@ const config = require('../config.json');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
-const extras = require('../extras.js');
+const extras = require('./extras.js');
 
 const removeMd = require('remove-markdown');
 
@@ -64,18 +64,6 @@ client.on('message', message => {
 
     var commandsuccess = true;
     switch (cmd) {
-      case 'whoami':
-        sendEmbed(message.channel, whois(message.member, false));
-        break;
-
-      case 'whois':
-        if (message.mentions.members.first() != undefined) {
-          sendEmbed(message.channel, whois(message.mentions.members.first()));
-        } else {
-          message.reply(`Member not found!\nCommand Usage: ${config.prefix}whois @mentionOfaUser`);
-        }
-        break;
-
       case 'eval':
         if (message.author.id == config.ownerid) {
           try {
@@ -929,6 +917,7 @@ function whois(member, mtn = true) {
     .addField('Created at', m.createdAt)
     .addField('Bot?', m.bot)
     .addField('Roles', '\\' + rls);
+
   if (m.presence.game != null) {
     uemb.addField('Game', m.presence.game.name);
   } else {
