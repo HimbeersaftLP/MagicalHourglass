@@ -876,11 +876,11 @@ function whois(member, mtn = true) {
     uemb.addField('Game', 'None');
   }
   uemb.addField('Status', m.presence.status);
-  if (m.lastMessage != null && mtn == true) {
+  /*if (m.lastMessage != null && mtn == true) {
     uemb.addField('Last Message', m.lastMessage.cleanContent);
   } else if (mtn == true) {
     uemb.addField('Last Message', 'Not found');
-  }
+  }*/
   return extras.embed('Information about the user ' + m.username + ':', uemb.toString(), m.displayAvatarURL);
 }
 
