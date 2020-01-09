@@ -16,7 +16,6 @@ const util = require('util');
 const crypto = require('crypto');
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
-const twitterregex = /http(s|):\/\/mobile\.twitter\.com[^\s]*/g;
 
 const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
 const fileendregex = /.*\.([a-zA-Z0-9]*)/;
@@ -568,16 +567,6 @@ client.on('message', message => {
     if(commandsuccess && message.guild.id == config.mainguild) message.react(juice);
     fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
-  } else if (message.content.match(twitterregex) !== null) {
-    var alllinks = "";
-    message.content.match(twitterregex).forEach(function(tlink) {
-      if (tlink !== 'https://mobile.twitter.com' && tlink !== 'http://mobile.twitter.com') {
-        alllinks += tlink.replace('mobile.twitter.com', 'twitter.com') + '\n';
-      } else {
-        return;
-      }
-    });
-    if (alllinks !== "") message.reply('Nobody likes mobile twitter links!\n' + alllinks);
   } else if (githubregex.test(message.content)) {
     var match = githubregex.exec(message.content);
     gitLinePreview(match, message);
@@ -586,8 +575,8 @@ client.on('message', message => {
 
 if (firstrun == 1) {
   client.login(config.discordtoken)
-    .then(function(r) {
-      console.log("Login successful! " + r);
+    .then(function() {
+      console.log("Login successful!");
     })
     .catch(function(r) {
       console.error("Login not successful! " + r);
