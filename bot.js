@@ -871,6 +871,7 @@ function whois(member, mtn = true) {
     .addField('Discord Tag', m.tag)
     .addField('Avatar URL', m.displayAvatarURL)
     .addField('Created at', m.createdAt)
+    .addField('Joined server at', member.joinedAt)
     .addField('Bot?', m.bot)
     .addField('Roles', '\\' + rls);
   if (m.presence.game != null) {
