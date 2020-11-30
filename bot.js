@@ -492,22 +492,6 @@ client.on('message', message => {
         }
         break;
 
-      case 'pmref':
-      case 'ref':
-        if (!args[0]) {
-          message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
-        } else {
-          // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
-          var matchfile = /(.*):([0-9]+)-?([0-9]+)?/.exec(args[0]);
-          if (matchfile) {
-            var match = ['', 'pmmp/PocketMine-MP/', 'master/src/' + matchfile[1], matchfile[2], matchfile[3]];
-            gitLinePreview(match, message);
-          } else {
-            message.reply(`Usage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`);
-          }
-        }
-        break;
-
       case 'emote':
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`);
@@ -564,7 +548,6 @@ client.on('message', message => {
           .addField(`${config.prefix}mock`, `maKeS tHE TeXt loOK lIkE tHiS\nUsage: ${config.prefix}mock <text>\nExample: ${config.prefix}mock How can I make an Email address`)
           .addField(`${config.prefix}clap`, `Add 👏 some 👏 applause 👏 to 👏 your 👏 message.\nUsage: ${config.prefix}clap <text>\nExample: ${config.prefix}clap That is great`)
           .addField(`${config.prefix}xkcd`, `Gets the given or most recent comic from xkcd.com.\nUsage: ${config.prefix}xkcd <id>\nExample: ${config.prefix}xkcd 292\nWhen no ID is provided, the most recent one will be displayed.`)
-          .addField(`${config.prefix}pmref or ${config.prefix}ref`, `Gets a line preview from the PocketMine GitHub.\nUsage: ${config.prefix}pmref <file>:<line from>[-line to]\nExample: ${config.prefix}pmref pocketmine/Server.php:1337 or ${config.prefix}pmref pocketmine/Server.php:42-69`)
           .addField(`${config.prefix}emote`, `Send an emote of the server you\'re on (useful for sending animated emotes without having Discord Nitro)\nUsage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`)
           .addField(`${config.prefix}s`, `Find and replace text in the last message of the channel your\'re in.\nUsage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`);
         message.author.send("", {
