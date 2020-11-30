@@ -643,7 +643,7 @@ function gsessionid(message, type = "full") {
   if (type == "full") {
     return message.author.id + '-' + message.channel.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
   } else if (type == "member") {
-    return message.member.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
+    return message.author.id + '-' + date.getUTCFullYear() + '-' + date.getUTCMonth() + '-' + date.getUTCDate();
   }
 }
 
