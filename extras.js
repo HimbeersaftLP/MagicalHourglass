@@ -12,7 +12,7 @@ const Discord = require('discord.js');
   }
 
   module.exports.embed = function(title = false, description = false, thumbnail = 'https://himbeer.me/images/logo-monochrome.png', color = false) {
-    var embed = new Discord.RichEmbed();
+    var embed = new Discord.MessageEmbed();
     if (title) embed.setTitle(title);
     if (description) embed.setDescription(description);
     if (thumbnail) embed.setThumbnail(thumbnail);

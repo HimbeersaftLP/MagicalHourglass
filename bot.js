@@ -228,7 +228,7 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}channels <text|voice>`);
         } else {
-          var clist = message.guild.channels.map((c) => {
+          var clist = message.guild.channels.cache.map((c) => {
             if (c.type == args[0].toLowerCase()) {
               return c.toString();
             }
@@ -345,11 +345,11 @@ client.on('message', message => {
             message.reply("Because of limitation in reaction count on Discord you can't have more than 20 choices on a poll, sorry.");
           } else {
             var choices = newargs.splice(1);
-            var poll = new Discord.RichEmbed().setTitle('Poll: ' + newargs[0]).setAuthor(message.author.username, message.author.avatarURL).setTimestamp(new Date());
+            var poll = new Discord.MessageEmbed().setTitle('Poll: ' + newargs[0]).setAuthor(message.author.username, message.author.displayAvatarURL()).setTimestamp(new Date());
             message.channel.send({
               embed: poll.setDescription("Hold on, processing reactions...\n**Don't vote yet!**")
             }).then(function(msg) {
-              reactionPoll(choices.length, msg).then(function(validr) {
+              reactionPoll(choices.length, msg).then(function({reactions, messageReactions}) {
                 var polltext = "";
                 choices.forEach(function(c, i) {
                   polltext += config.reaction_alphabet[i] + ' ' + c + '\n';
@@ -363,9 +363,9 @@ client.on('message', message => {
                     }).then(function(msg) {
                       client.setTimeout(function() {
                         var result = "**Results:**\n";
-                        validr.forEach(function(r, i) {
+                        messageReactions.forEach(function(r, i) {
                           try {
-                            result += r + ' ' + choices[i] + ": " + (msg.reactions.get(r).count - 1) + ' votes\n';
+                            result += reactions[i] + ' ' + choices[i] + ": " + (r.count - 1) + ' votes\n';
                           } catch (err) {
                             result += 'Error\n';
                           }
@@ -410,13 +410,13 @@ client.on('message', message => {
         secs = seconds % 60;
         var uptime = days + ' Days, ' + hrs + ' Hours, ' + mins + ' Minutes and ' + Math.round(secs) + ' Seconds';
         var stats = new extras.SubFields()
-          .addField('Servers', client.guilds.size)
-          .addField('Channels', client.channels.size)
-          .addField('Cached Users', client.users.size)
+          .addField('Servers', client.guilds.cache.size)
+          .addField('Channels', client.channels.cache.size)
+          .addField('Cached Users', client.users.cache.size)
           .addField('Uptime', uptime)
           .addField('RAM Usage', Math.round(process.memoryUsage().rss / 10485.76) / 100 + ' MB')
           .toString();
-        var status = new Discord.RichEmbed()
+        var status = new Discord.MessageEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('MagicalHourglass Information:')
           .setDescription('MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.')
@@ -456,7 +456,7 @@ client.on('message', message => {
           for (var i = 0; i < beforemock.length; i++) {
             mocked += (Math.random() >= 0.5) ? beforemock[i].toUpperCase() : beforemock[i].toLowerCase();
           }
-          message.channel.send(message.author + ": " + mocked);
+          message.channel.send(message.author.toString() + ": " + mocked);
         }
         break;
 
@@ -464,7 +464,7 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}clap <text>\nExample: ${config.prefix}clap That is great`);
         } else {
-          message.channel.send(message.author + ": " + args.join(" 👏 "));
+          message.channel.send(message.author.toString() + ": " + args.join(" 👏 "));
         }
         break;
 
@@ -476,7 +476,7 @@ client.on('message', message => {
           request.get('https://xkcd.com' + xkcdurl + '/info.0.json', function(error, response, body) {
             if (!error && response.statusCode == 200) {
               var xkcd = JSON.parse(body);
-              var xkcde = new Discord.RichEmbed()
+              var xkcde = new Discord.MessageEmbed()
                 .setColor(Math.floor(Math.random() * 16777215))
                 .setTitle(xkcd.num + ': ' + xkcd.safe_title)
                 .setDescription('Alt text: ' +  xkcd.alt)
@@ -496,8 +496,8 @@ client.on('message', message => {
         if (!args[0]) {
           message.reply(`Usage: ${config.prefix}emote <name>\nExample: ${config.prefix}emote turtle`);
         } else {
-          var emote = message.guild.emojis.find('name', args[0]);
-          if (emote === null) {
+          const emote = message.guild.emojis.cache.find(emoji => emoji.name === args[0]);
+          if (typeof emote === 'undefined') {
             message.reply("Error: Emote not found!");
           } else {
             message.channel.send(emote.toString());
@@ -510,18 +510,16 @@ client.on('message', message => {
         if (match === null) {
           message.reply(`Usage: ${config.prefix}s <find>/<replace>\nExample: ${config.prefix}s tst/test`);
         } else {
-          var m = message.channel.messages.array()[message.channel.messages.array().length - 2];
-          if (typeof m === 'undefined') {
-            message.reply('Error: Couldn\'t get the last message in this channel.');
-          } else {
+          message.channel.messages.fetch({ limit: 2 }).then(messages => {
+            const m = messages.last();
             message.reply(m.content.replace(match[1], match[2]));
-          }
+          });
         }
         break;
 
       case 'help':
         message.reply('Sent you a DM!');
-        var help = new Discord.RichEmbed()
+        var help = new Discord.MessageEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle('Help for MagicalHourglass:')
           .setDescription('Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:')
@@ -598,22 +596,26 @@ function sendLong(text, max = 2000, limintext = max) {
 
 function reactionPoll(choices, message) {
   return new Promise(function(resolve, reject) {
-    var reactions = config.reaction_alphabet.slice(0, choices);
+    const reactions = config.reaction_alphabet.slice(0, choices);
+    const messageReactions = [];
     reactions.forEach(function(rt, ind) {
       if (ind == 0) {
         fr = message.react(rt);
       } else if (ind === choices - 1) {
-        fr.then(() =>
-          message.react(rt)
-        ).catch((err) =>
+        fr.then((messageReaction) => {
+          messageReactions.push(messageReaction);
+          return message.react(rt);
+        }).catch((err) =>
           reject(err)
-        ).then(() =>
-          resolve(reactions)
-        );
+        ).then((messageReaction) => {
+          messageReactions.push(messageReaction);
+          resolve({reactions, messageReactions});
+        });
       } else {
-        fr = fr.then(() =>
-          message.react(rt)
-        ).catch((err) =>
+        fr = fr.then((messageReaction) => {
+          messageReactions.push(messageReaction);
+          return message.react(rt);
+        }).catch((err) =>
           reject(err)
         );
       }
@@ -636,7 +638,7 @@ function getweather(q, message) {
       var w = JSON.parse(body);
       var fahrenheit = (w.main.temp * 9 / 5 + 32).toFixed(2);
       var mph = (w.wind.speed * 2.23693629205).toFixed(1);
-      var wth = new Discord.RichEmbed()
+      var wth = new Discord.MessageEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
         .setDescription(w.weather[0].main)
@@ -659,7 +661,7 @@ function getcat(message) {
   request.get('http://aws.random.cat/meow', function(error, response, body) {
     if (!error && response.statusCode == 200) {
       var c = JSON.parse(body);
-      var cat = new Discord.RichEmbed()
+      var cat = new Discord.MessageEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle("Here's your random cat:")
         .setDescription('Link: [Click Here](' + c.file + ')')
@@ -683,7 +685,7 @@ function googlepic(q, message, r = 1) {
       } else {
         ri = ri - 1;
       }
-      var gres = new Discord.RichEmbed()
+      var gres = new Discord.MessageEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
         .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\n,googlepic <search term> -r <number> to see the other results.')
@@ -713,7 +715,7 @@ function searchpoggit(plugin, message) {
           .addField('Download', pl.artifact_url + '/' + pl.name + '.phar');
         if (pl.api.length > 0) uemb.addField('For APIs', pl.api[0].from + ' - ' + pl.api[0].to);
         uemb.addField('License', pl.license);
-        var pinfo = new Discord.RichEmbed()
+        var pinfo = new Discord.MessageEmbed()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle(pl.name + ' (' + pl.state_name + '):')
           .setDescription(uemb.toString())
@@ -733,7 +735,7 @@ function getchuck(message) {
   request.get('https://api.chucknorris.io/jokes/random', function(error, response, body) {
     if (!error && response.statusCode == 200) {
       var cn = JSON.parse(body);
-      var cj = new Discord.RichEmbed()
+      var cj = new Discord.MessageEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Your Chuck Norris fact, fresh from chucknorris.io:')
         .setDescription(cn.value)
@@ -761,7 +763,7 @@ function gitIssue(repo, number, message) {
       g.labels.forEach(function(label, i) {
         ilabels += label.name + ((i !== g.labels.length - 1) ? ', ' : "");
       });
-      var gissue = new Discord.RichEmbed()
+      var gissue = new Discord.MessageEmbed()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle(((typeof g.pull_request == "undefined") ? 'Issue' : 'Pull request') + ' #' + number + ': ' + g.title)
         .addField('Information:', '__Created by__ ' + g.user.login + '\n__State:__ ' + g.state + '\n__Labels:__ ' + ((g.labels !== []) ? ilabels : 'none') + '\n__Comments:__ ' + g.comments + '\n__Locked:__ ' + g.locked + '\n__Reactions:__\n' + g.reactions['+1'] + ' 👍 | ' + g.reactions['-1'] + ' 👎 | ' + g.reactions.laugh + ' 😄 | ' + g.reactions.confused + ' 😕 | ' + g.reactions.heart + ' ❤️ | ' + g.reactions.hooray + ' 🎉')
@@ -847,28 +849,17 @@ function gitLinePreview(match, message) {
 
 function whois(member, mtn = true) {
   var m = member.user;
-  var rls = member.roles.map((r) => r.name).join(', ');
+  var rls = member.roles.cache.map((r) => r.name).join(', ');
   var uemb = new extras.UnrealEmbed()
     .addField('Username', m.username)
     .addField('ID', m.id)
     .addField('Discord Tag', m.tag)
-    .addField('Avatar URL', m.displayAvatarURL)
+    .addField('Avatar URL', m.displayAvatarURL())
     .addField('Created at', m.createdAt)
     .addField('Joined server at', member.joinedAt)
     .addField('Bot?', m.bot)
-    .addField('Roles', '\\' + rls);
-  if (m.presence.game != null) {
-    uemb.addField('Game', m.presence.game.name);
-  } else {
-    uemb.addField('Game', 'None');
-  }
-  uemb.addField('Status', m.presence.status);
-  /*if (m.lastMessage != null && mtn == true) {
-    uemb.addField('Last Message', m.lastMessage.cleanContent);
-  } else if (mtn == true) {
-    uemb.addField('Last Message', 'Not found');
-  }*/
-  return extras.embed('Information about the user ' + m.username + ':', uemb.toString(), m.displayAvatarURL);
+    .addField('Roles', rls);
+  return extras.embed('Information about the user ' + m.username + ':', uemb.toString(), m.displayAvatarURL());
 }
 
 function getrandrot() {
@@ -886,7 +877,7 @@ function getrandrot() {
 
 function makesofe(message, hex, bghex, rot = 0) {
   var sofe = 'https://himbeer.me/sofeavatars/sofeavatar.php?hex=' + hex + '&bghex=' + bghex + '&rot=' + rot;
-  var sofembed = new Discord.RichEmbed()
+  var sofembed = new Discord.MessageEmbed()
     .setColor(parseInt(hex, 16))
     .setTitle('Your SOFe avatar has been generated!')
     .setDescription('Link: ' + sofe)

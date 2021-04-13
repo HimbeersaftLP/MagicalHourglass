@@ -5,9 +5,9 @@
   "main": "bot.js",
   "dependencies": {
     "apiai": "^4.0.3",
-    "discord.js": "^11.5.1",
+    "discord.js": "^12.5.3",
     "remove-markdown": "^0.3.0",
-    "request": "^2.88.0"
+    "request": "^2.88.2"
   },
   "devDependencies": {},
   "scripts": {
