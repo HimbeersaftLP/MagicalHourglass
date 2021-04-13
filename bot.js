@@ -124,19 +124,6 @@ client.on('message', message => {
         message.react(cfish);
         break;
 
-      case 't':
-        message.channel.startTyping();
-        request.get('https://program-o.com/v3/chat.php?bot_id=6&format=json&say=' + encodeURIComponent(args.join(' ')) + '&convo_id=' + gsessionid(message), function(error, response, body) {
-          if (!error && response.statusCode == 200) {
-            var b = JSON.parse(body);
-            message.reply(b.conversation.say.bot);
-          } else {
-            message.reply('An error occured while accessing the Program-O API!');
-          }
-          message.channel.stopTyping();
-        });
-        break;
-
       case 'whoami':
         sendEmbed(message.channel, whois(message.member, false));
         break;
@@ -531,7 +518,6 @@ client.on('message', message => {
           .addField(`${config.prefix}weather`, `Get the current weather of a specific cifm OpenWeatherMap\nUsage: ${config.prefix}weather <city>\nExample: ${config.prefix}weather London`)
           .addField(`${config.prefix}cat`, 'Get a random cat image from random.cat')
           .addField(`${config.prefix}fish`, 'Go fishing!')
-          .addField(`${config.prefix}t`, `Talk with Program-O...\nUsage: ${config.prefix}t <Your message>\nExample: ${config.prefix}t How are you?`)
           .addField(`${config.prefix}whoami`, 'Get information about yourself.')
           .addField(`${config.prefix}whois`, `Get information about another member.\nUsage: ${config.prefix}whois @mentionOfaUser\nExample: ${config.prefix}whois @HimbeersaftLP#8553`)
           .addField(`${config.prefix}googlepic`, `Search Google for images.\nUsage: ${config.prefix}googlepic <search term>\nExample: ${config.prefix}googlepic boxofdevs team`)
