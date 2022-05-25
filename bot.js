@@ -9,11 +9,7 @@ const removeMd = require('remove-markdown');
 
 var request = require('request');
 
-var apiai = require('apiai');
-var ai = apiai(config.apiai_token);
-
 const util = require('util');
-const crypto = require('crypto');
 
 var fish = ['🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];
 
@@ -227,64 +223,6 @@ client.on('message', message => {
 
       case 'chuck':
         getchuck(message);
-        break;
-
-      case 'ai':
-        message.channel.startTyping();
-        var air = ai.textRequest(args.join(' '), {
-          sessionId: gsessionid(message, "member")
-        });
-
-        air.on('response', function(r) {
-          message.reply(r.result.fulfillment.speech);
-          if (!r.result.actionIncomplete) {
-            switch (r.result.action) {
-              case "web.search":
-                switch (r.result.parameters.engine) {
-                  case "Google Images":
-                    googlepic(r.result.parameters.q, message);
-                    break;
-                  case "Poggit":
-                    searchpoggit(r.result.parameters.q, message);
-                    break;
-                  default:
-                    break;
-                }
-                break;
-              case "weather":
-                getweather(r.result.parameters['geo-city'], message);
-                break;
-              case "give":
-                switch (r.result.parameters.item) {
-                  case "random SOFe":
-                    var sofehex = Math.floor(Math.random() * 16777215).toString(16);
-                    var sofebghex = Math.floor(Math.random() * 16777215).toString(16);
-                    var rot = getrandrot();
-                    makesofe(message, sofehex, sofebghex, rot);
-                    break;
-                  case "Chuck Norris fact":
-                    getchuck(message);
-                    break;
-                  case "cat":
-                    getcat(message);
-                    break;
-                  default:
-                    break;
-                }
-                break;
-              default:
-                break;
-            }
-          }
-        });
-
-        air.on('error', function(e) {
-          console.log(e);
-          message.reply("An error occured while accessing the api.ai API!");
-        });
-
-        air.end();
-        message.channel.stopTyping();
         break;
 
       case 'issue':
