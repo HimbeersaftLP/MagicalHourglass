@@ -2,7 +2,7 @@
   "name": "magicalhourglass",
   "version": "1.0.0",
   "description": "A magic Discord bot, originally made for the BoxOfDevs Discord.",
-  "main": "bot.js",
+  "main": "src/bot.js",
   "dependencies": {
     "discord.js": "^13.7.0",
     "remove-markdown": "^0.3.0",
@@ -10,7 +10,7 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node bot.js"
+    "start": "node src/bot.js"
   },
   "repository": {
     "type": "git",
