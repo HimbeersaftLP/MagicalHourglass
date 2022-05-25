@@ -4,6 +4,9 @@
   "description": "A magic Discord bot, originally made for the BoxOfDevs Discord.",
   "main": "src/bot.js",
   "dependencies": {
+    "@discordjs/builders": "^0.13.0",
+    "@discordjs/rest": "^0.4.1",
+    "discord-api-types": "^0.33.0",
     "discord.js": "^13.7.0",
     "remove-markdown": "^0.3.0",
     "request": "^2.88.2"
