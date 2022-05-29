@@ -8,6 +8,7 @@
     "@discordjs/rest": "^0.4.1",
     "discord-api-types": "^0.33.0",
     "discord.js": "^13.7.0",
+    "node-fetch": "^3.2.4",
     "remove-markdown": "^0.3.0",
     "request": "^2.88.2"
   },
@@ -30,6 +31,8 @@
   },
   "homepage": "https://github.com/HimbeersaftLP/MagicalHourglass#readme",
   "devDependencies": {
-    "eslint": "^8.16.0"
-  }
+    "eslint": "^8.16.0",
+    "eslint-plugin-jsdoc": "^39.3.2"
+  },
+  "type": "module"
 }

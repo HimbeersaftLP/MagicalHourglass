@@ -1,6 +1,8 @@
 #Gitnore file
 # Config
-config.json
+config.js
 # NPM package stuff
-node_modules/*
+node_modules/
 package-lock.json
+# VSCode
+.vscode/

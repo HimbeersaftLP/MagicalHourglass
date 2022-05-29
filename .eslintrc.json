@@ -5,25 +5,27 @@
 		"es6": true
 	},
 	"parserOptions": {
-		"ecmaVersion": 2021
+		"ecmaVersion": 2021,
+		"sourceType": "module"
 	},
 	"rules": {
 		"arrow-spacing": ["warn", { "before": true, "after": true }],
-		"brace-style": ["error", "stroustrup", { "allowSingleLine": true }],
+		"brace-style": ["error", "1tbs", { "allowSingleLine": true }],
 		"comma-dangle": ["error", "always-multiline"],
 		"comma-spacing": "error",
 		"comma-style": "error",
 		"curly": ["error", "multi-line", "consistent"],
 		"dot-location": ["error", "property"],
+		"eqeqeq": "error",
 		"handle-callback-err": "off",
-		"indent": ["error", 2],
+		"indent": ["error", 2, { "SwitchCase": 1 }],
+		"jsdoc/no-undefined-types": ["error", {"definedTypes":["RegExpExecArray"]}],
 		"keyword-spacing": "error",
-		"max-nested-callbacks": ["error", { "max": 4 }],
+		"max-nested-callbacks": ["error", { "max": 7 }], // TODO: Reset to 4
 		"max-statements-per-line": ["error", { "max": 2 }],
 		"no-console": "off",
 		"no-empty-function": "error",
 		"no-floating-decimal": "error",
-		"no-inline-comments": "error",
 		"no-lonely-if": "error",
 		"no-multi-spaces": "error",
 		"no-multiple-empty-lines": ["error", { "max": 2, "maxEOF": 1, "maxBOF": 0 }],
@@ -44,6 +46,10 @@
 		"space-infix-ops": "error",
 		"space-unary-ops": "error",
 		"spaced-comment": "error",
-		"yoda": "error"
-	}
+		"yoda": "error",
+		"no-case-declarations": 0 // TODO: Temporary
+	},
+	"plugins": [
+		"jsdoc"
+	]
 }
