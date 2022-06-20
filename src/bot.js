@@ -116,7 +116,7 @@ client.on('messageCreate', async (message) => {
         break;
 
       case 'eval':
-        if (!doEval(message.author.id, message.channel, args.join(' '))) {
+        if (!doEval(message.author.id, message, args.join(' '))) {
           message.reply('You ain\'t doing that!');
         }
         break;
