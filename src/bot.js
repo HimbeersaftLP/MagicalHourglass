@@ -9,29 +9,29 @@ const client = new Discord.Client({
   ],
 });
 
-import { doEval } from './responses/eval.js';
-import { doReboot } from './responses/reboot.js';
-import { doStartPoll } from './responses/poll.js';
-import { get8BallResponse } from './responses/eightBall.js';
-import { getChannels } from './responses/channels.js';
-import { getChuckNorrisFact } from './responses/chuckNorris.js';
-import { getClapped } from './responses/clap.js';
-import { getConversion } from './responses/currencyConvert.js';
-import { getCustomEmote } from './responses/emote.js';
-import { getFish } from './responses/fish.js';
-import { getGitHubLinePreview } from './responses/github.js';
-import { getGitIssue } from './responses/gitIssue.js';
-import { getGooglePic } from './responses/googlepic.js';
-import { getHelp } from './responses/help.js';
-import { getInfo } from './responses/info.js';
-import { getMocked } from './responses/mock.js';
-import { getPoggitPlugin } from './responses/poggit.js';
-import { getRandomCat } from './responses/cat.js';
-import { getRandomHexColor, getRandomRotation, getSofeEmbed } from './responses/sofe.js';
-import { getSubstitute } from './responses/substitute.js';
-import { getWeather } from './responses/weather.js';
-import { getWhoisEmbed } from './responses/whois.js';
-import { getXkcd } from './responses/xkcd.js';
+import { doEval } from './commands/eval.js';
+import { doReboot } from './commands/reboot.js';
+import { doStartPoll } from './commands/poll.js';
+import { get8BallResponse } from './commands/eightBall.js';
+import { getChannels } from './commands/channels.js';
+import { getChuckNorrisFact } from './commands/chuckNorris.js';
+import { getClapped } from './commands/clap.js';
+import { getConversion } from './commands/currencyConvert.js';
+import { getCustomEmote } from './commands/emote.js';
+import { getFish } from './commands/fish.js';
+import { getGitHubLinePreview } from './commands/github.js';
+import { getGitIssue } from './commands/gitIssue.js';
+import { getGooglePic } from './commands/googlepic.js';
+import { getHelp } from './commands/help.js';
+import { getInfo } from './commands/info.js';
+import { getMocked } from './commands/mock.js';
+import { getPoggitPlugin } from './commands/poggit.js';
+import { getRandomCat } from './commands/cat.js';
+import { getRandomHexColor, getRandomRotation, getSofeEmbed } from './commands/sofe.js';
+import { getSubstitute } from './commands/substitute.js';
+import { getWeather } from './commands/weather.js';
+import { getWhoisEmbed } from './commands/whois.js';
+import { getXkcd } from './commands/xkcd.js';
 
 const githubregex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
 
