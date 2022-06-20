@@ -5,6 +5,6 @@ import config from '../../config.js';
  * @returns {string}
  */
 export function get8BallResponse() {
-  const rnd = Math.floor(Math.random() * config.eightball.length);
-  return config.eightball[rnd];
+  const rnd = Math.floor(Math.random() * config.eightBallResponses.length);
+  return config.eightBallResponses[rnd];
 }

@@ -38,7 +38,7 @@ export async function doStartPoll(message, args) {
       } = await reactionPoll(choices.length, msg);
       let polltext = '';
       choices.forEach(function(c, i) {
-        polltext += config.reaction_alphabet[i] + ' ' + c + '\n';
+        polltext += config.reactionAlphabet[i] + ' ' + c + '\n';
       });
       const msg2 = await msg.edit({
         embeds: [poll.setDescription(polltext).setFooter({ text: 'Click one of the reactions to vote!', iconURL: 'https://himbeer.me/images/logo-monochrome.png' })],
@@ -93,7 +93,7 @@ export async function doStartPoll(message, args) {
  * @returns {Promise<ReactionPollResult>}
  */
 async function reactionPoll(choices, message) {
-  const reactions = config.reaction_alphabet.slice(0, choices);
+  const reactions = config.reactionAlphabet.slice(0, choices);
   const messageReactions = [];
   for (let i = 0; i < reactions.length; i++) {
     const messageReaction = await message.react(reactions[i]);

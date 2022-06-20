@@ -1,23 +1,23 @@
 export default {
   'prefix': ',',
 
-  'discordtoken': 'Your Discord bot accounts token',
-  'owmid': 'Your OpenWeatherMap App ID',
-  'googlekey': 'Your Google CSE Api key',
-  'google_cse_id': 'Your Google CSE search engine ID',
+  'discordToken': 'Your Discord bot accounts token',
+  'discordClientId': 'Your Discord application cliant ID',
+  'owmId': 'Your OpenWeatherMap App ID',
+  'googleKey': 'Your Google CSE Api key',
+  'googleCseId': 'Your Google CSE search engine ID',
 
-  'reaction_alphabet': ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿'],
+  'reactionAlphabet': ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿'],
 
   'juiceEmote': 'Textual representation of the bot\'s emote in the form <:emote_name:id>',
-  'mainguild': 'The guild\'s id this bot has been installed for',
-  'ownerid': 'ID of the bot\'s owner, use @YourUsernameHere or the command whoami to find it out',
+  'ownerId': 'ID of the bot\'s owner, use @YourUsernameHere or the command whoami to find it out',
 
-  'blockedusers': [
+  'blockedUsers': [
     'an array of',
     'blocked users',
   ],
 
-  'eightball': [
+  'eightBallResponses': [
     'It is certain',
     'It is decidedly so',
     'Without a doubt',

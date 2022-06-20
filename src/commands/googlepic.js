@@ -9,8 +9,8 @@ import { MessageEmbed, MessagePayload } from 'discord.js';
  * @returns {Promise<MessagePayload>}
  */
 export async function getGooglePic(q, r = 1) {
-  const url = 'https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(q) + '&cx=' + config.google_cse_id +
-              '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googlekey;
+  const url = 'https://www.googleapis.com/customsearch/v1?q=' + encodeURIComponent(q) + '&cx=' + config.googleCseId +
+              '&searchType=image&fields=items(image%2FcontextLink%2Clink%2Ctitle)%2CsearchInformation&safe=medium&key=' + config.googleKey;
   try {
     const g = await (await fetch(url)).json();
     let ri = Math.floor(Number(r));

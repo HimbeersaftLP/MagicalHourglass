@@ -10,27 +10,27 @@ import { Message } from 'discord.js';
  * @returns {boolean} true if the author has the permission to use the eval command
  */
 export function doEval(authorId, message, code) {
-  if (authorId === config.ownerid) {
+  if (authorId === config.ownerId) {
     try {
       const estart = process.hrtime();
       const evaled = eval(code);
       const eend = process.hrtime(estart);
       const tm = '*Executed in ' + (eend[0] * 1000 + eend[1] / 1000000) + ' ms.*\n';
       if (typeof evaled === 'object') {
-        message.reply(sendLong(tm + '```\n' + util.inspect(evaled).replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
+        message.reply(sendLong(tm + '```\n' + util.inspect(evaled).replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
       } else if (typeof evaled === 'undefined') {
         message.reply(tm + '```\nundefined\n```');
       } else if (evaled === null) {
         message.reply(tm + '```\nnull\n```');
       } else {
-        message.reply(sendLong(tm + '```\n' + evaled.toString().replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
+        message.reply(sendLong(tm + '```\n' + evaled.toString().replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
       }
     } catch (err) {
       let errToSend = err;
       if (err !== null && typeof err === 'object') {
         errToSend = util.inspect(err);
       }
-      message.reply(':x: Error!\n```\n' + errToSend.replace(config.discordtoken, '<TOKEN HAS BEEN HIDDEN>') + '\n```');
+      message.reply(':x: Error!\n```\n' + errToSend.replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```');
     }
     return true;
   } else {

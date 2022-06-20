@@ -12,7 +12,7 @@ import fetch from 'node-fetch';
  */
 export async function getWeather(q) {
   try {
-    const w = await (await fetch('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmid + '&units=metric&q=' + q)).json();
+    const w = await (await fetch('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmId + '&units=metric&q=' + q)).json();
     const fahrenheit = (w.main.temp * 9 / 5 + 32).toFixed(2);
     const mph = (w.wind.speed * 2.23693629205).toFixed(1);
     return {

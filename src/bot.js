@@ -56,7 +56,7 @@ client.on('ready', () => {
 
 client.on('messageCreate', async (message) => {
   if (message.author.bot) return;
-  if (config.blockedusers.includes(message.author.id)) return;
+  if (config.blockedUsers.includes(message.author.id)) return;
   if (!message.guild) return;
   if (message.content.startsWith(config.prefix)) {
 
@@ -271,7 +271,7 @@ client.on('messageCreate', async (message) => {
 });
 
 if (firstrun === 1) {
-  client.login(config.discordtoken)
+  client.login(config.discordToken)
     .then(function() {
       console.log('Login successful!');
     })

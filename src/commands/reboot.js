@@ -7,7 +7,7 @@ import { Message } from 'discord.js';
  * @returns {boolean} false if the author does not have the permission to use the reboot command
  */
 export function doReboot(message) {
-  if (message.author.id === config.ownerid) {
+  if (message.author.id === config.ownerId) {
     message.reply('Restarting!').then(() => {
       console.log('Restarted by ' + message.author.username);
       process.exit(0);
