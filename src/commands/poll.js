@@ -70,7 +70,7 @@ export async function doStartPoll(message, args) {
       if (err.message === 'Maximum number of reactions reached (20)') {
         errexplain = 'Reason: There were already 20 reactions on that message (can\'t fit more than 20 per message).\nHint: If you are a server owner you can remove the permission to react from other people while the bot is reacting.';
       } else {
-        console.log(err);
+        console.error(err);
         errexplain = 'Unknown error, this has been logged and the bot creator will take a look at the issue';
       }
       msg.edit({
