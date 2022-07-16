@@ -1,3 +1,5 @@
+import { CommandInteraction, Message } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import {
   MessageEmbed,
   MessagePayload,
@@ -6,6 +8,19 @@ import {
   UnrealEmbed,
 } from '../extras.js';
 import fetch from 'node-fetch';
+import { replySingleCommandHelp } from './help.js';
+
+export const data = [{
+  builder: new SlashCommandBuilder()
+    .setName('poggit')
+    .setDescription('Search for a plugin release on Poggit')
+    .addStringOption(o =>
+      o.setName('plugin_name')
+        .setDescription('Name of the plugin to get info about')
+        .setRequired(true)),
+  usage: '<plugin name>',
+  example: 'DevTools',
+}];
 
 /**
  * Get an embed with info about a plugin on Poggit
@@ -43,8 +58,35 @@ export async function getPoggitPlugin(plugin) {
         ],
       };
     }
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     return 'An error occured while accessing the Poggit API!';
+  }
+}
+
+/**
+ * Execute this command as a slash-command
+ * @param {CommandInteraction} interaction The Interaction object
+ * @returns {Promise}
+ */
+export async function execute(interaction) {
+  const plugin_name = interaction.options.getString('plugin_name');
+  await interaction.reply(await getPoggitPlugin(plugin_name));
+}
+
+/**
+ * Execute this command from a message (legacy style)
+ * @param {Message} message The message that caused command execution
+ * @param {string} cmd Command name
+ * @param {string[]} args Command arguments
+ * @returns {Promise}
+ */
+// eslint-disable-next-line no-unused-vars
+export async function executeFromMessage(message, cmd, args) {
+  if (!args[0]) {
+    await replySingleCommandHelp(message, 'poggit');
+  } else {
+    message.channel.sendTyping();
+    await message.reply(await getPoggitPlugin(args[0]));
   }
 }

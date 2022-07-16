@@ -1,9 +1,24 @@
+import { CommandInteraction, Message } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import config from '../../config.js';
 import {
   MessageEmbed,
   MessagePayload,
 } from 'discord.js';
 import fetch from 'node-fetch';
+import { replySingleCommandHelp } from './help.js';
+
+export const data = [{
+  builder: new SlashCommandBuilder()
+    .setName('weather')
+    .setDescription('Get the current weather in a specific place from OpenWeatherMap')
+    .addStringOption(o =>
+      o.setName('place')
+        .setDescription('Name of a city or place on earth')
+        .setRequired(true)),
+  usage: '<city>',
+  example: 'London',
+}];
 
 /**
  * Get the weather in the given location
@@ -13,6 +28,9 @@ import fetch from 'node-fetch';
 export async function getWeather(q) {
   try {
     const w = await (await fetch('http://api.openweathermap.org/data/2.5/weather?APPID=' + config.owmId + '&units=metric&q=' + q)).json();
+    if (w.cod === '404') {
+      return 'Place not found!';
+    }
     const fahrenheit = (w.main.temp * 9 / 5 + 32).toFixed(2);
     const mph = (w.wind.speed * 2.23693629205).toFixed(1);
     return {
@@ -33,8 +51,34 @@ export async function getWeather(q) {
         }),
       ],
     };
-  } catch (e) {
-    console.error(e);
-    return 'City not found or an error occured while accessing the OpenWatherMap API!';
+  } catch (err) {
+    console.error(err);
+    return 'An error occured while accessing the OpenWatherMap API!';
   }
+}
+
+/**
+ * Execute this command as a slash-command
+ * @param {CommandInteraction} interaction The Interaction object
+ * @returns {Promise}
+ */
+export async function execute(interaction) {
+  const place = interaction.options.getString('place');
+  await interaction.reply(await getWeather(place));
+}
+
+/**
+ * Execute this command from a message (legacy style)
+ * @param {Message} message The message that caused command execution
+ * @param {string} cmd Command name
+ * @param {string[]} args Command arguments
+ * @returns {Promise}
+ */
+// eslint-disable-next-line no-unused-vars
+export async function executeFromMessage(message, cmd, args) {
+  if (!args[0]) {
+    await replySingleCommandHelp(message, 'weather');
+    return;
+  }
+  await message.reply(await getWeather(args[0]));
 }

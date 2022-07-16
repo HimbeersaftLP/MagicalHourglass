@@ -1,3 +1,5 @@
+import { CommandInteraction, Message } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import {
   Client,
   MessageEmbed,
@@ -6,6 +8,13 @@ import {
 import {
   SubFields,
 } from '../extras.js';
+
+export const data = [{
+  builder: new SlashCommandBuilder()
+    .setName('magicalhourglass')
+    .setDescription('Display information and stats about this bot'),
+  aliases: ['info', 'status', 'invite'],
+}];
 
 /**
  * Get embed with bot info
@@ -40,4 +49,25 @@ export function getInfo(client) {
       .addField('Stats:', stats),
     ],
   };
+}
+
+/**
+ * Execute this command as a slash-command
+ * @param {CommandInteraction} interaction The Interaction object
+ * @returns {Promise}
+ */
+export async function execute(interaction) {
+  await interaction.reply(getInfo(interaction.client));
+}
+
+/**
+ * Execute this command from a message (legacy style)
+ * @param {Message} message The message that caused command execution
+ * @param {string} cmd Command name
+ * @param {string[]} args Command arguments
+ * @returns {Promise}
+ */
+// eslint-disable-next-line no-unused-vars
+export async function executeFromMessage(message, cmd, args) {
+  await message.reply(getInfo(message.client));
 }

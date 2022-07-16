@@ -1,4 +1,4 @@
-import Discord, { MessagePayload } from 'discord.js';
+import Discord from 'discord.js';
 
 /**
  * @description Calculates the length of a number

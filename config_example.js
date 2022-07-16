@@ -2,7 +2,7 @@ export default {
   'prefix': ',',
 
   'discordToken': 'Your Discord bot accounts token',
-  'discordClientId': 'Your Discord application cliant ID',
+  'discordApplicationId': 'Your Discord application client ID',
   'owmId': 'Your OpenWeatherMap App ID',
   'googleKey': 'Your Google CSE Api key',
   'googleCseId': 'Your Google CSE search engine ID',

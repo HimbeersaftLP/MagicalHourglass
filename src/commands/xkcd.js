@@ -1,8 +1,23 @@
+import { CommandInteraction, Message } from 'discord.js';
+import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import {
   MessageEmbed,
   MessagePayload,
 } from 'discord.js';
+import { replySingleCommandHelp } from './help.js';
+
+export const data = [{
+  builder: new SlashCommandBuilder()
+    .setName('xkcd')
+    .setDescription('Gets the given or most recent comic from xkcd.com')
+    .addIntegerOption(o =>
+      o.setName('id')
+        .setDescription('ID of an xkcd.com comic')
+        .setRequired(false)),
+  usage: '[id]',
+  example: '292\nWhen no ID is provided, the most recent one will be displayed.',
+}];
 
 /**
  * Get a message with the given xkcd comic or the latest one if no number is given
@@ -31,8 +46,34 @@ export async function getXkcd(number) {
         }),
       ],
     };
-  } catch (e) {
-    console.error(e);
+  } catch (err) {
+    console.error(err);
     return 'An error occured while accessing the xkcd API!';
+  }
+}
+
+/**
+ * Execute this command as a slash-command
+ * @param {CommandInteraction} interaction The Interaction object
+ * @returns {Promise}
+ */
+export async function execute(interaction) {
+  const id = interaction.options.getInteger('id', false);
+  await interaction.reply(await getXkcd(id));
+}
+
+/**
+ * Execute this command from a message (legacy style)
+ * @param {Message} message The message that caused command execution
+ * @param {string} cmd Command name
+ * @param {string[]} args Command arguments
+ * @returns {Promise}
+ */
+// eslint-disable-next-line no-unused-vars
+export async function executeFromMessage(message, cmd, args) {
+  if (isNaN(args[0]) && typeof args[0] !== 'undefined') {
+    await replySingleCommandHelp(message, 'xkcd');
+  } else {
+    await message.reply(await getXkcd(args[0] || null));
   }
 }
