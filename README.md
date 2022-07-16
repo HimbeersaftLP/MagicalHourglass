@@ -5,9 +5,12 @@ A Discord bot for the BoxOfDevs Discord
 ## Changelog for version 2
 
 - Complete refactoring
+  - Organise code into seperate classes
   - Use `node-fetch` instead of `request`
-  - Organise code into classes
-- GitHub line preview messages are now sent as reply to the message with the link
+  - Use custom command handler instead of switch/case
+  - Use async/await instead of Promises
+  - More robust error handling
+- Respones are now sent as proper replies
 - Commands:
   - Added slash commands
   - Deprecated prefixed commands

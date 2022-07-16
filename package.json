@@ -1,6 +1,6 @@
 {
   "name": "magicalhourglass",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "A magic Discord bot, originally made for the BoxOfDevs Discord.",
   "main": "src/bot.js",
   "dependencies": {
@@ -23,7 +23,7 @@
     "discord",
     "bot"
   ],
-  "author": "HimbeersaftLP",
+  "author": "Himbeer",
   "license": "SEE LICENSE IN LICENSE",
   "bugs": {
     "url": "https://github.com/HimbeersaftLP/MagicalHourglass/issues"
