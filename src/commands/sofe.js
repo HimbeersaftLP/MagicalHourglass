@@ -53,6 +53,7 @@ export function getRandomHexColor() {
  * @param {string} color Hexadecimal color code
  */
 function prepareHexColor(color) {
+  // TODO: Accept three digit colors, properly validate and accept CSS colors
   if (color.startsWith('#')) {
     return color.substring(1);
   }
