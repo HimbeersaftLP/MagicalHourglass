@@ -44,7 +44,7 @@ export function getInfo(client) {
       .setDescription('MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.')
       .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
       .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
-      .addField('Author:', 'HimbeersaftLP#8553')
+      .addField('Author:', 'Himbeer#8553')
       .addField('Invite:', '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)')
       .addField('Stats:', stats),
     ],
