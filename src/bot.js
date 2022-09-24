@@ -57,12 +57,14 @@ client.on('messageCreate', async message => {
       console.error(err);
       await message.reply('Error: Command could not be executed due to an unknown problem. Sorry.');
     }
-  } else if (githubRegex.test(message.content)) {
+  } else {
     const ghMatch = githubRegex.exec(message.content);
-    message.reply({
-      content: await getGitHubLinePreview(ghMatch),
-      allowedMentions: { repliedUser: false }, // Reply without ping
-    });
+    if (ghMatch) {
+      message.reply({
+        content: await getGitHubLinePreview(ghMatch),
+        allowedMentions: { repliedUser: false }, // Reply without ping
+      });
+    }
   }
 });
 

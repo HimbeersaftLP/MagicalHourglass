@@ -18,6 +18,9 @@ A Discord bot for the BoxOfDevs Discord
   - Deprecated prefixed commands
   - `github` command added
     - Sends the same line preview as GitHub links in regular messages
+    - Improvements: (apply to the old automatic line preview as well)
+      - Uses embed for more possible characters
+      - Some bugfixes
   - `help` rewrite
     - can now get detailed help for individual commands
     - is now automatically generated from the individual command data
