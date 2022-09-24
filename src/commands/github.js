@@ -1,11 +1,11 @@
-import { CommandInteraction, Message } from 'discord.js';
+import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import { nLength } from '../extras.js';
 import { replySingleCommandHelp } from './help.js';
 
-export const githubRegex = /http(?:s|):\/\/github\.com\/(.*?\/.*?\/)blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
-const fileEndRegex = /.*\.([a-zA-Z0-9]*)/;
+export const githubRegex = /http(?:s|):\/\/github\.com\/(.*?\/.*?)\/blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
+const fileExtensionRegex = /.*\.([a-zA-Z0-9]*)/;
 
 export const data = [{
   builder: new SlashCommandBuilder()
@@ -25,57 +25,89 @@ export const data = [{
  * @returns {Promise<string>}
  */
 export async function getGitHubLinePreview(match) {
-  // TODO: Maybe use embed for more allowed characters
-  // TODO: Display repo name and branch because the slash command doesn't show the URL
-  // TODO: When sending the start of a file, a negative number will be displayed
   // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
   if (match === null) {
     return 'Error: Invalid URL format detected! Make sure you are linking to a specific line of code on GitHub.';
   }
-  const res = await fetch('https://raw.githubusercontent.com/' + match[1] + match[2]);
+
+  const repo = match[1];
+  const fileName = match[2].replace(/\?.+/, ''); // Remove HTTP GET Query Parameters
+
+  const res = await fetch(`https://raw.githubusercontent.com/${repo}/${fileName}`);
   if (res.status === 404) {
     return 'Error: GitHub file not found!';
   }
   if (res.status !== 200) {
     return 'An error occured while accessing the GitHub API!';
   }
+
+  const embed = new MessageEmbed()
+    .setColor(Math.floor(Math.random() * 16777215))
+    .setFooter({
+      text: `GitHub repository: ${repo}`,
+    });
+
   const body = await res.text();
   const lines = body.split('\n');
-  if (typeof lines[match[3] - 1] === 'undefined') return;
-  match[3] = Number(match[3]);
-  let from;
-  let to;
-  if (typeof match[4] === 'undefined') {
-    match[4] = match[3];
-    from = match[3] - 5;
-    to = match[3] + 5;
-  } else {
-    match[4] = Number(match[4]);
-    if (typeof lines[match[4] - 1] === 'undefined' || match[3] >= match[4]) return;
-    from = match[3];
-    to = match[4];
-    const diff = match[4] - match[3];
-    if (diff < 11) {
-      const space = Math.round((11 - diff) / 2);
-      from = match[3] - space;
-      to = match[4] + space;
+
+  let from, to;
+  let selectedTo;
+  const selectedFrom = Number(match[3]);
+  if (typeof lines[selectedFrom - 1] === 'undefined') {
+    return 'Error: The selection start line does not exist in this file!';
+  }
+  if (typeof match[4] === 'undefined') { // No end line given (#Ln)
+    selectedTo = selectedFrom;
+    from = selectedFrom - 5;
+    to = selectedFrom + 5;
+  } else { // End line given (#Ln-n)
+    selectedTo = Number(match[4]);
+    if (typeof lines[selectedTo - 1] === 'undefined') {
+      return 'Error: The selection end line does not exist in this file!';
     }
-    if (diff > 40) {
-      from = match[3];
-      to = match[3] + 40;
+    if (selectedFrom >= selectedTo) {
+      return 'Error: Selection start line is after selection end line.';
+    }
+    from = selectedFrom;
+    to = selectedTo;
+    const diff = selectedTo - selectedFrom;
+    if (diff < 11) { // If less than 11 lines are selected, display context up to twelve lines
+      const space = Math.round((11 - diff) / 2);
+      from = selectedFrom - space;
+      to = selectedTo + space;
+    }
+    if (diff > 40) { // If more than 40 lines are selected, only display the top 40 lines
+      from = selectedFrom;
+      to = selectedFrom + 40;
     }
   }
-  let lang = fileEndRegex.exec(match[2]) ? fileEndRegex.exec(match[2])[1] : '';
+
+  // Prevent trying to show lines that do not exist in the file
+  from = Math.max(from, 1);
+  to = Math.min(to, lines.length);
+
+  // Determine programming language from file extension
+  let lang = fileExtensionRegex.exec(fileName)?.[1] || '';
   if (lang === 'kt') lang = 'kotlin'; // Workaround for Kotlin syntax highlighting
   if (lang === 'svg') lang = 'xml'; // Workaround for svg syntax highlighting
-  const cleanFileName = match[2].replace(/\?.+/, ''); // Remove HTTP GET Query Parameters
-  let codemsg = `Showing lines ${from} - ${to} of \`${cleanFileName}\`\n` + '```' + lang + '\n';
+
+  // Put lines into code block
+  let codeContent = '```' + lang + '\n'; // Put language at start of code block for Discord syntax highlighting
   for (let i = from; i <= to; i++) {
-    if (typeof lines[i - 1] !== 'undefined') {
-      codemsg += `${((i >= match[3] && i <= match[4]) ? '>' : ' ')}${(nLength(i) < nLength(to) ? ' ' : '')}${i} ${lines[i - 1]}\n`;
-    }
+    // Display > character in front of selected lines
+    codeContent += `${((i >= selectedFrom && i <= selectedTo) ? '>' : ' ')}${(nLength(i) < nLength(to) ? ' ' : '')}${i} ${lines[i - 1]}\n`;
   }
-  return codemsg + '```';
+  codeContent += '```';
+
+  embed.setTitle(`Showing lines ${from} - ${to} of \`${fileName}\``);
+  embed.setDescription(codeContent);
+  if (selectedFrom === selectedTo) { // No end line given (#Ln)
+    embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}`);
+  } else {
+    embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}-L${selectedTo}`);
+  }
+
+  return { embeds: [ embed ] };
 }
 
 /**
