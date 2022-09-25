@@ -1,6 +1,5 @@
 import { CommandInteraction, TextChannel } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
-import config from '../../config.js';
 import {
   Client,
   Message,
@@ -9,6 +8,8 @@ import {
   User,
 } from 'discord.js';
 import { replySingleCommandHelp } from './help.js';
+
+const reactionAlphabet = ['🇦', '🇧', '🇨', '🇩', '🇪', '🇫', '🇬', '🇭', '🇮', '🇯', '🇰', '🇱', '🇲', '🇳', '🇴', '🇵', '🇶', '🇷', '🇸', '🇹', '🇺', '🇻', '🇼', '🇽', '🇾', '🇿'];
 
 export const data = [{
   builder: new SlashCommandBuilder()
@@ -51,7 +52,7 @@ async function startPollInternal(author, channel, title, choices, time = 0) {
     } = await reactionPoll(choices.length, msg);
     let polltext = '';
     choices.forEach(function(c, i) {
-      polltext += config.reactionAlphabet[i] + ' ' + c + '\n';
+      polltext += reactionAlphabet[i] + ' ' + c + '\n';
     });
     const msg2 = await msg.edit({
       embeds: [poll.setDescription(polltext).setFooter({ text: 'Click one of the reactions to vote!', iconURL: 'https://himbeer.me/images/logo-monochrome.png' })],
@@ -130,7 +131,7 @@ export async function doStartPoll(author, interaction, title, choices, time = 0)
  * @returns {Promise<ReactionPollResult>}
  */
 async function reactionPoll(choices, message) {
-  const reactions = config.reactionAlphabet.slice(0, choices);
+  const reactions = reactionAlphabet.slice(0, choices);
   const messageReactions = [];
   for (let i = 0; i < reactions.length; i++) {
     const messageReaction = await message.react(reactions[i]);
