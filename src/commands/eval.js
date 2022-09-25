@@ -18,6 +18,7 @@ export const data = [{
  * @returns {Promise<boolean>} true if the author has the permission to use the eval command
  */
 export async function doEval(authorId, message, code) {
+  // TODO: Use embed instead of message for more characters
   if (authorId === config.ownerId) {
     try {
       const estart = process.hrtime();

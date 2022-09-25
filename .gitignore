@@ -3,6 +3,7 @@
 .vscode/
 # Config
 defaults.js
+docker-compose.yml
 # Registered commands (created at runtime)
 registered_commands.json
 # NPM package stuff

@@ -12,6 +12,6 @@ export default {
 
   'blockedUsers': [
     'an array of',
-    'blocked users',
+    'blocked user IDs',
   ],
 };

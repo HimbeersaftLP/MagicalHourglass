@@ -10,10 +10,10 @@ ENV NODE_ENV="production"
 
 COPY package*.json ./
 
-# RUN npm ci --only=production
-
 RUN npm install
 
 COPY . .
 
-CMD [ "node", "bot.js" ]
+RUN mv defaults.js.docker defaults.js
+
+CMD [ "node", "src/bot.js" ]
