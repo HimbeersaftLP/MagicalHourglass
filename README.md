@@ -32,5 +32,8 @@ A Discord bot for the BoxOfDevs Discord
   - `ai` command has been removed
   - All responses regarding wrong usage now look consistent
   - Some command outputs may have changed slightly
-- Use `config.js` instead of `config.json` because it's easier to load with ES-modules syntax
+- Config changes
+  - JavaScript config instead of `config.json` because it's easier to load with ES-modules syntax
+  - Configuration values can now be given using environment variables, defaults set in `defaults.js`
+  - Constants like the reaction alphabet are no longer in the config file
 - Updated all dependencies

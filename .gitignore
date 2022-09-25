@@ -1,10 +1,11 @@
-#Gitnore file
+# .gitignore file
+# VSCode
+.vscode/
 # Config
-config.js
+defaults.js
 # Registered commands (created at runtime)
 registered_commands.json
 # NPM package stuff
 node_modules/
 package-lock.json
-# VSCode
-.vscode/
+npm-debug.log

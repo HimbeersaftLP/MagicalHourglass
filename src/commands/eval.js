@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import config from '../../config.js';
+import config from '../config.js';
 import util from 'util';
 import { Message } from 'discord.js';
 
