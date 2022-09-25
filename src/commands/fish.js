@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
-// import config from '../../config.js';
+// import config from '../config.js';
 
 // TODO: Add juice emote
 // const fishList = [config.juiceEmote, '🐠', '🐟', '🐡', '🐬', '🐳', '🐋'];

@@ -1,6 +1,6 @@
 import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
-import config from '../../config.js';
+import config from '../config.js';
 import fetch from 'node-fetch';
 import { MessageEmbed, MessagePayload } from 'discord.js';
 import { replySingleCommandHelp } from './help.js';
