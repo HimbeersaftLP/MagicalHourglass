@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, MessageEmbed } from 'discord.js';
+import { CommandInteraction, Message, EmbedBuilder } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import { nLength } from '../extras.js';
@@ -41,7 +41,7 @@ export async function getGitHubLinePreview(match) {
     return 'An error occured while accessing the GitHub API!';
   }
 
-  const embed = new MessageEmbed()
+  const embed = new EmbedBuilder()
     .setColor(Math.floor(Math.random() * 16777215))
     .setFooter({
       text: `GitHub repository: ${repo}`,

@@ -1,7 +1,7 @@
 import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import fetch from 'node-fetch';
@@ -20,7 +20,7 @@ export async function getRandomCat() {
   try {
     const c = await (await fetch('http://aws.random.cat/meow')).json();
     return {
-      embeds: [new MessageEmbed()
+      embeds: [new EmbedBuilder()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Here\'s your random cat:')
         .setDescription('Link: [Click Here](' + c.file + ')')

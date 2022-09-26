@@ -3,7 +3,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import {
   Client,
   Message,
-  MessageEmbed,
+  EmbedBuilder,
   MessageReaction,
   User,
 } from 'discord.js';
@@ -41,7 +41,7 @@ export const data = [{
  * @param {Client} client discord.js client object
  */
 async function startPollInternal(author, channel, title, choices, time = 0) {
-  let poll = new MessageEmbed().setTitle('Poll: ' + title).setAuthor({ name: author.username, iconURL: author.displayAvatarURL() }).setTimestamp(new Date());
+  let poll = new EmbedBuilder().setTitle('Poll: ' + title).setAuthor({ name: author.username, iconURL: author.displayAvatarURL() }).setTimestamp(new Date());
   const msg = await channel.send({
     embeds: [poll.setDescription('Hold on, processing reactions...\n**Don\'t vote yet!**')],
   });
@@ -59,7 +59,7 @@ async function startPollInternal(author, channel, title, choices, time = 0) {
     });
     if (time !== 0) {
       const msg3 = await msg2.edit({
-        embeds: [poll.addField('Notice:', 'Poll will end in ' + time + ' seconds')],
+        embeds: [poll.addFields([{ name: 'Notice:', value: 'Poll will end in ' + time + ' seconds' }])],
       });
       setTimeout(function() {
         let result = '**Results:**\n';

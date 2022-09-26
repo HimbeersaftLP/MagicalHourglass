@@ -2,7 +2,7 @@ import { SlashCommandBuilder } from '@discordjs/builders';
 import config from '../config.js';
 import {
   Message,
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 
@@ -23,7 +23,7 @@ const singleCommandHelps = {};
  * @returns {Promise}
  */
 export async function generateHelpEmbed() {
-  helpEmbed = new MessageEmbed()
+  helpEmbed = new EmbedBuilder()
     .setColor(Math.floor(Math.random() * 16777215))
     .setTitle('Help for MagicalHourglass:')
     .setDescription('Invite this bot to your server: https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577\nCommands:')
@@ -43,12 +43,18 @@ export async function generateHelpEmbed() {
     if (cmd.example) fieldValues.push(`Example: ${config.prefix}${cmd.builder.name} ${cmd.example}`);
     const fieldValue = fieldValues.join('\n');
 
-    helpEmbed.addField(fieldName, fieldValue);
+    helpEmbed.addFields([{
+      name: fieldName,
+      value: fieldValue,
+    }]);
 
-    const embed = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(Math.floor(Math.random() * 16777215))
       .setDescription('Command help:')
-      .addField(fieldName, fieldValue);
+      .addFields([{
+        name: fieldName,
+        value: fieldValue,
+      }]);
 
     singleCommandHelps[cmd.builder.name] = embed;
     cmd.aliases?.forEach(alias => {
@@ -60,7 +66,7 @@ export async function generateHelpEmbed() {
 /**
  * Get the command help embed for one command
  * @param {string} commandName Which command to get help for
- * @returns {MessageEmbed|null}
+ * @returns {EmbedBuilder|null}
  */
 export function getSingleCommandHelp(commandName) {
   return singleCommandHelps[commandName] || null;

@@ -11,7 +11,7 @@ export function nLength(number) {
 }
 
 export function embed(title = false, description = false, thumbnail = 'https://himbeer.me/images/logo-monochrome.png', color = false) {
-  const msgEmbed = new Discord.MessageEmbed();
+  const msgEmbed = new Discord.EmbedBuilder();
   if (title) msgEmbed.setTitle(title);
   if (description) msgEmbed.setDescription(description);
   if (thumbnail) msgEmbed.setThumbnail(thumbnail);

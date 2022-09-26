@@ -3,13 +3,14 @@ import config from './config.js';
 import Discord from 'discord.js';
 const client = new Discord.Client({
   intents: [
-    Discord.Intents.FLAGS.GUILDS,
-    Discord.Intents.FLAGS.GUILD_MESSAGES,
-    Discord.Intents.FLAGS.GUILD_MESSAGE_REACTIONS,
-    Discord.Intents.FLAGS.DIRECT_MESSAGES,
+    Discord.GatewayIntentBits.Guilds,
+    Discord.GatewayIntentBits.GuildMessages,
+    Discord.GatewayIntentBits.GuildMessageReactions,
+    Discord.GatewayIntentBits.DirectMessages,
+    Discord.GatewayIntentBits.MessageContent,
   ],
   partials: [
-    'CHANNEL',
+    Discord.Partials.Channel,
   ],
 });
 
@@ -58,12 +59,27 @@ client.on('messageCreate', async message => {
       await message.reply('Error: Command could not be executed due to an unknown problem. Sorry.');
     }
   } else {
-    const ghMatch = githubRegex.exec(message.content);
-    if (ghMatch) {
-      message.reply({
-        content: await getGitHubLinePreview(ghMatch),
-        allowedMentions: { repliedUser: false }, // Reply without ping
-      });
+    try {
+      const ghMatch = githubRegex.exec(message.content);
+      if (ghMatch) {
+        if (message.guild) {
+          console.log(`>G Requested by "${message.author.tag}" on "${message.guild.name}"`);
+        } else {
+          console.log(`>G Requested by "${message.author.tag}" via DM`);
+        }
+        const result = await getGitHubLinePreview(ghMatch);
+        if (typeof result === 'string') {
+          // Only error messages are string
+          console.log(`--> failed with: "${result}"`);
+        } else {
+          message.reply({
+            embeds: result.embeds,
+            allowedMentions: { repliedUser: false }, // Reply without ping
+          });
+        }
+      }
+    } catch (err) {
+      console.error(err);
     }
   }
 });

@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import config from '../config.js';
 import fetch from 'node-fetch';
-import { MessageEmbed, MessagePayload } from 'discord.js';
+import { EmbedBuilder, MessagePayload } from 'discord.js';
 import { replySingleCommandHelp } from './help.js';
 
 export const data = [{
@@ -39,14 +39,14 @@ export async function getGooglePic(q, r = 1) {
     } else {
       ri = ri - 1;
     }
-    const gres = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(Math.floor(Math.random() * 16777215))
       .setTitle('#' + (ri + 1).toString() + ' Result: ' + g.items[ri].title)
       .setDescription('Image URL: ' + g.items[ri].link + '\nImage from: ' + g.items[ri].image.contextLink + '\n\nResult ' + (ri + 1).toString() + ' of ' + g.items.length.toString() + ' loaded results.\nUse `/googlepic <search term> <number>` or `,googlepic <search term> -r <number>` to see the other results.')
       .setImage(g.items[ri].link);
     return {
       content: g.searchInformation.formattedTotalResults + ' results in ' + g.searchInformation.formattedSearchTime + ' seconds:',
-      embeds: [gres],
+      embeds: [embed],
     };
   } catch (err) {
     console.error(err);

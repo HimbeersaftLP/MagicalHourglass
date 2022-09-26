@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import config from '../config.js';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import fetch from 'node-fetch';
@@ -34,17 +34,19 @@ export async function getWeather(q) {
     const fahrenheit = (w.main.temp * 9 / 5 + 32).toFixed(2);
     const mph = (w.wind.speed * 2.23693629205).toFixed(1);
     return {
-      embeds: [new MessageEmbed()
+      embeds: [new EmbedBuilder()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Weather for ' + w.name + ', ' + w.sys.country + ':')
         .setDescription(w.weather[0].main)
         .setThumbnail('http://openweathermap.org/img/w/' + w.weather[0].icon + '.png')
-        .addField('Weather description', w.weather[0].description)
-        .addField('Temperature', w.main.temp + ' °C / ' + fahrenheit + ' °F')
-        .addField('Wind speed', w.wind.speed + ' meter/sec / ' + mph + ' mph')
-        .addField('Pressure', w.main.pressure + ' hPa')
-        .addField('Humidity', w.main.humidity + ' %')
-        .addField('Cloudiness', w.clouds.all + ' %')
+        .addFields([
+          { name: 'Weather description', value: w.weather[0].description },
+          { name: 'Temperature', value: w.main.temp + ' °C / ' + fahrenheit + ' °F' },
+          { name: 'Wind speed', value: w.wind.speed + ' meter/sec / ' + mph + ' mph' },
+          { name: 'Pressure', value: w.main.pressure + ' hPa' },
+          { name: 'Humidity', value: w.main.humidity + ' %' },
+          { name: 'Cloudiness', value: w.clouds.all + ' %' },
+        ])
         .setFooter({
           text: 'Data from OpenWeatherMap',
           iconURL: 'https://upload.wikimedia.org/wikipedia/commons/1/15/OpenWeatherMap_logo.png',

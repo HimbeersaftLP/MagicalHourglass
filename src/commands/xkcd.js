@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import { replySingleCommandHelp } from './help.js';
@@ -33,7 +33,7 @@ export async function getXkcd(number) {
     }
     const xkcd = await res.json();
     return {
-      embeds: [new MessageEmbed()
+      embeds: [new EmbedBuilder()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle(xkcd.num + ': ' + xkcd.safe_title)
         .setDescription('Hover text: ' + xkcd.alt)

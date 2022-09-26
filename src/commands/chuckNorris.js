@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 
@@ -20,7 +20,7 @@ export async function getChuckNorrisFact() {
   try {
     const cn = await (await fetch('https://api.chucknorris.io/jokes/random')).json();
     return {
-      embeds: [new MessageEmbed()
+      embeds: [new EmbedBuilder()
         .setColor(Math.floor(Math.random() * 16777215))
         .setTitle('Your Chuck Norris fact, fresh from chucknorris.io:')
         .setDescription(cn.value.replace(/`/g, '\''))

@@ -1,7 +1,7 @@
 import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import {
@@ -10,6 +10,7 @@ import {
 import fetch from 'node-fetch';
 import { replySingleCommandHelp } from './help.js';
 
+// TODO: Autocomplete for the plugin name
 export const data = [{
   builder: new SlashCommandBuilder()
     .setName('poggit')
@@ -44,7 +45,7 @@ export async function getPoggitPlugin(plugin) {
       if (pl.api.length > 0) uemb.addField('For APIs', pl.api[0].from + ' - ' + pl.api[0].to);
       uemb.addField('License', pl.license);
       return {
-        embeds: [new MessageEmbed()
+        embeds: [new EmbedBuilder()
           .setColor(Math.floor(Math.random() * 16777215))
           .setTitle(pl.name + ' (' + pl.state_name + '):')
           .setDescription(uemb.toString())

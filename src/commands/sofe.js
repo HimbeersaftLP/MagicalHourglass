@@ -1,7 +1,7 @@
 import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import { replySingleCommandHelp } from './help.js';
@@ -72,7 +72,7 @@ export function getSofeEmbed(fgHex, bgHex, rotation = 0) {
   bgHex = prepareHexColor(bgHex);
   const sofeUrl = 'https://himbeer.me/sofeavatars/sofeavatar.php?hex=' + fgHex + '&bghex=' + bgHex + '&rot=' + rotation;
   return {
-    embeds: [new MessageEmbed()
+    embeds: [new EmbedBuilder()
       .setColor(parseInt(fgHex, 16))
       .setTitle('Your SOFe avatar has been generated!')
       .setDescription('Link: ' + sofeUrl)

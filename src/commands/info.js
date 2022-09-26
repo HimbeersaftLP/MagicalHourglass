@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import {
   Client,
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import {
@@ -38,15 +38,17 @@ export function getInfo(client) {
     .addField('RAM Usage', Math.round(process.memoryUsage().rss / 10485.76) / 100 + ' MB')
     .toString();
   return {
-    embeds: [new MessageEmbed()
+    embeds: [new EmbedBuilder()
       .setColor(Math.floor(Math.random() * 16777215))
       .setTitle('MagicalHourglass Information:')
       .setDescription('MagicalHourglass is an open source Discord bot written in Node.js and originally made for the BoxOfDevs Discord Server.')
       .setThumbnail('https://himbeer.me/images/logo-monochrome.png')
-      .addField('GitHub:', 'https://github.com/HimbeersaftLP/MagicalHourglass')
-      .addField('Author:', 'Himbeer#8553')
-      .addField('Invite:', '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)')
-      .addField('Stats:', stats),
+      .addFields([
+        { name: 'GitHub:', value: 'https://github.com/HimbeersaftLP/MagicalHourglass' },
+        { name: 'Author:', value: 'Himbeer#8553' },
+        { name: 'Invite:', value: '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)' },
+        { name: 'Stats:', value: stats },
+      ]),
     ],
   };
 }

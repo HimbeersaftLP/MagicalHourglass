@@ -2,7 +2,7 @@ import { CommandInteraction, Message } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import {
-  MessageEmbed,
+  EmbedBuilder,
   MessagePayload,
 } from 'discord.js';
 import removeMarkdown from 'remove-markdown';
@@ -46,11 +46,19 @@ export async function getGitIssue(repo, number) {
     g.labels.forEach(function(label, i) {
       ilabels += label.name + ((i !== g.labels.length - 1) ? ', ' : '');
     });
-    const gissue = new MessageEmbed()
+    const embed = new EmbedBuilder()
       .setColor(Math.floor(Math.random() * 16777215))
       .setTitle(((typeof g.pull_request === 'undefined') ? 'Issue' : 'Pull request') + ' #' + number + ': ' + g.title)
       .setAuthor({ name: repo })
-      .addField('Information:', '__Created by__ ' + g.user.login + '\n__State:__ ' + g.state + '\n__Labels:__ ' + ((g.labels !== []) ? ilabels : 'none') + '\n__Comments:__ ' + g.comments + '\n__Locked:__ ' + g.locked + '\n__Reactions:__\n' + g.reactions['+1'] + ' 👍 | ' + g.reactions['-1'] + ' 👎 | ' + g.reactions.laugh + ' 😄 | ' + g.reactions.confused + ' 😕 | ' + g.reactions.heart + ' ❤️ | ' + g.reactions.hooray + ' 🎉')
+      .addFields([{
+        name: 'Information:',
+        value: '__Created by__ ' + g.user.login +
+        '\n__State:__ ' + g.state +
+        '\n__Labels:__ ' + ((g.labels !== []) ? ilabels : 'none') +
+        '\n__Comments:__ ' + g.comments +
+        '\n__Locked:__ ' + g.locked +
+        '\n__Reactions:__\n' + g.reactions['+1'] + ' 👍 | ' + g.reactions['-1'] + ' 👎 | ' + g.reactions.laugh + ' 😄 | ' + g.reactions.confused + ' 😕 | ' + g.reactions.heart + ' ❤️ | ' + g.reactions.hooray + ' 🎉',
+      }])
       .setThumbnail(g.user.avatar_url)
       .setTimestamp(new Date(g.created_at))
       .setURL(g.html_url)
@@ -59,13 +67,16 @@ export async function getGitIssue(repo, number) {
         iconURL: 'https://assets-cdn.github.com/images/modules/logos_page/Octocat.png',
       });
     if (removeMarkdown(g.body).length > 2045) {
-      gissue.addField('Notice:', 'The Description has been shortened to fit into an embed');
-      gissue.setDescription((removeMarkdown(g.body).substring(0, 2045)) + '...');
+      embed.addField([{
+        name: 'Notice:',
+        value: 'The Description has been shortened to fit into an embed',
+      }]);
+      embed.setDescription((removeMarkdown(g.body).substring(0, 2045)) + '...');
     } else {
-      gissue.setDescription(removeMarkdown(g.body));
+      embed.setDescription(removeMarkdown(g.body));
     }
     return {
-      embeds: [gissue],
+      embeds: [embed],
     };
   } else if (res.status === 404) {
     return 'Error: Repo or issue not found.';

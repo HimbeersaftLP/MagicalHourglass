@@ -28,11 +28,11 @@ export const data = [{
 export async function getChannels(guild, channelType) {
   const channels = await guild.channels.fetch();
   const clist = channels.filter(c => {
-    if (c.isText() && channelType === 'text') return true;
-    if (c.isVoice() && channelType === 'voice') return true;
+    if (c.isTextBased() && channelType === 'text') return true;
+    if (c.isVoiceBased() && channelType === 'voice') return true;
     return false;
   }).map(c => {
-    if (c.isText() && c.isVoice() && channelType === 'text') {
+    if (c.isTextBased() && c.isVoiceBased() && channelType === 'text') {
       return c.name + ' (VC text channel)';
     }
     return c.name;
