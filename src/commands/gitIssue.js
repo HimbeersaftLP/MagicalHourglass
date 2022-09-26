@@ -73,7 +73,10 @@ export async function getGitIssue(repo, number) {
       }]);
       embed.setDescription((removeMarkdown(g.body).substring(0, 2045)) + '...');
     } else {
-      embed.setDescription(removeMarkdown(g.body));
+      const desc = removeMarkdown(g.body);
+      if (desc !== '') {
+        embed.setDescription(desc);
+      }
     }
     return {
       embeds: [embed],
