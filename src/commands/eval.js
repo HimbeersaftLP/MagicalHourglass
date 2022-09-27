@@ -25,13 +25,15 @@ export async function doEval(authorId, message, code) {
       const evaled = eval(code);
       const eend = process.hrtime(estart);
       const tm = '*Executed in ' + (eend[0] * 1000 + eend[1] / 1000000) + ' ms.*\n';
+      let output;
       if (typeof evaled === 'undefined') {
-        await message.reply(tm + '```\nundefined\n```');
+        output = 'undefined';
       } else {
-        await message.reply({
-          embeds: [ getEvalEmbed(tm, util.inspect(evaled).replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>')) ]
-        });
+        output = util.inspect(evaled).replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>');
       }
+      await message.reply({
+        embeds: [ getEvalEmbed(tm, output) ],
+      });
     } catch (err) {
       const errToSend = util.inspect(err);
       await message.reply(':x: Error!\n```\n' + errToSend.replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```');
