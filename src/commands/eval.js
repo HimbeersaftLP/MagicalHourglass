@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import config from '../config.js';
 import util from 'util';
-import { Message } from 'discord.js';
+import { EmbedBuilder, Message } from 'discord.js';
 
 export const data = [{
   builder: new SlashCommandBuilder()
@@ -25,20 +25,15 @@ export async function doEval(authorId, message, code) {
       const evaled = eval(code);
       const eend = process.hrtime(estart);
       const tm = '*Executed in ' + (eend[0] * 1000 + eend[1] / 1000000) + ' ms.*\n';
-      if (typeof evaled === 'object') {
-        await message.reply(sendLong(tm + '```\n' + util.inspect(evaled).replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
-      } else if (typeof evaled === 'undefined') {
+      if (typeof evaled === 'undefined') {
         await message.reply(tm + '```\nundefined\n```');
-      } else if (evaled === null) {
-        await message.reply(tm + '```\nnull\n```');
       } else {
-        await message.reply(sendLong(tm + '```\n' + evaled.toString().replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```', 1992, 2000));
+        await message.reply({
+          embeds: [ getEvalEmbed(tm, util.inspect(evaled).replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>')) ]
+        });
       }
     } catch (err) {
-      let errToSend = err;
-      if (err !== null && typeof err === 'object') {
-        errToSend = util.inspect(err);
-      }
+      const errToSend = util.inspect(err);
       await message.reply(':x: Error!\n```\n' + errToSend.replace(config.discordToken, '<TOKEN HAS BEEN HIDDEN>') + '\n```');
     }
     return true;
@@ -47,12 +42,21 @@ export async function doEval(authorId, message, code) {
   }
 }
 
-function sendLong(text, max = 2000, limintext = max) {
-  if (text.length > max) {
-    return 'Message is too long to send (' + text.length + ' of ' + limintext + ' chars)';
-  } else {
-    return text;
+// https://discord.com/developers/docs/resources/channel#embed-object-embed-limits
+const embedDescriptionMaxChars = 4096;
+const truncateLength = embedDescriptionMaxChars - '```\n\n```'.length;
+
+function getEvalEmbed(title, output) {
+  const embed = new EmbedBuilder().setTitle(title);
+  if (output.length > truncateLength) {
+    output = output.slice(0, truncateLength);
+    embed.addFields([
+      { name: 'Notice', value: `Output truncated to ${embedDescriptionMaxChars} characters.` },
+    ]);
   }
+  output = '```\n' + output + '\n```';
+  embed.setDescription(output);
+  return embed;
 }
 
 /**
