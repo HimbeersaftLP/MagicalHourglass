@@ -23,6 +23,8 @@ A Discord bot for the BoxOfDevs Discord
     - Improvements: (apply to the old automatic line preview as well)
       - Uses embed for more possible characters
       - Some bugfixes
+  - `announce` command added
+    - Used by the bot administrator to notify all servers about updates
   - `help` rewrite
     - can now get detailed help for individual commands
     - is now automatically generated from the individual command data
