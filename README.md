@@ -2,7 +2,9 @@
 
 A Discord bot for the BoxOfDevs Discord
 
-## Changelog for version 2
+## Changelog
+
+### Version 2.0.0
 
 - Complete refactoring
   - Organise code into seperate classes
