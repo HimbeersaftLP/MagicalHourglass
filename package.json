@@ -4,8 +4,8 @@
   "description": "A magic Discord bot, originally made for the BoxOfDevs Discord.",
   "main": "src/bot.js",
   "dependencies": {
-    "discord.js": "^14.5.0",
-    "node-fetch": "^3.2.10",
+    "discord.js": "^14.7.1",
+    "node-fetch": "^3.3.0",
     "remove-markdown": "^0.5.0"
   },
   "scripts": {
@@ -27,8 +27,8 @@
   },
   "homepage": "https://github.com/HimbeersaftLP/MagicalHourglass#readme",
   "devDependencies": {
-    "eslint": "^8.24.0",
-    "eslint-plugin-jsdoc": "^39.3.6"
+    "eslint": "^8.33.0",
+    "eslint-plugin-jsdoc": "^39.8.0"
   },
   "type": "module"
 }
