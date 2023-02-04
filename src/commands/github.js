@@ -4,8 +4,15 @@ import fetch from 'node-fetch';
 import { nLength } from '../extras.js';
 import { replySingleCommandHelp } from './help.js';
 
-export const githubRegex = /http(?:s|):\/\/github\.com\/(.*?\/.*?)\/blob\/(.*?\/.*?)#L([0-9]+)-?L?([0-9]+)?/;
+export const githubRegex = /http(?:s|):\/\/github\.com\/(.*?\/.*?)\/blob\/(.*?\/.*?)#L([0-9]+)(?:C([0-9]+))?(?:-L([0-9]+))?(?:C([0-9]+))?/;
 const fileExtensionRegex = /.*\.([a-zA-Z0-9]*)/;
+
+const GROUP_REPO = 1;
+const GROUP_FILE = 2;
+const GROUP_L_FROM = 3;
+const GROUP_C_FROM = 4;
+const GROUP_L_TO = 5;
+const GROUP_C_TO = 6;
 
 export const data = [{
   builder: new SlashCommandBuilder()
@@ -30,8 +37,8 @@ export async function getGitHubLinePreview(match) {
     return 'Error: Invalid URL format detected! Make sure you are linking to a specific line of code on GitHub.';
   }
 
-  const repo = match[1];
-  const fileName = match[2].replace(/\?.+/, ''); // Remove HTTP GET Query Parameters
+  const repo = match[GROUP_REPO];
+  const fileName = match[GROUP_FILE].replace(/\?.+/, ''); // Remove HTTP GET Query Parameters
 
   const res = await fetch(`https://raw.githubusercontent.com/${repo}/${fileName}`);
   if (res.status === 404) {
@@ -52,20 +59,20 @@ export async function getGitHubLinePreview(match) {
 
   let from, to;
   let selectedTo;
-  const selectedFrom = Number(match[3]);
+  const selectedFrom = Number(match[GROUP_L_FROM]);
   if (typeof lines[selectedFrom - 1] === 'undefined') {
     return 'Error: The selection start line does not exist in this file!';
   }
-  if (typeof match[4] === 'undefined') { // No end line given (#Ln)
+  if (typeof match[GROUP_L_TO] === 'undefined') { // No end line given (#Ln)
     selectedTo = selectedFrom;
     from = selectedFrom - 5;
     to = selectedFrom + 5;
   } else { // End line given (#Ln-n)
-    selectedTo = Number(match[4]);
+    selectedTo = Number(match[GROUP_L_TO]);
     if (typeof lines[selectedTo - 1] === 'undefined') {
       return 'Error: The selection end line does not exist in this file!';
     }
-    if (selectedFrom >= selectedTo) {
+    if (selectedFrom > selectedTo) {
       return 'Error: Selection start line is after selection end line.';
     }
     from = selectedFrom;
@@ -82,6 +89,26 @@ export async function getGitHubLinePreview(match) {
     }
   }
 
+  // Parse selected column
+  let selectedColFrom = null, selectedColTo = null;
+  if (typeof match[GROUP_C_FROM] !== 'undefined') {
+    selectedColFrom = Number(match[GROUP_C_FROM]);
+    if (lines[selectedFrom - 1].length < (selectedColFrom - 1)) {
+      return 'Error: The selection start column does not exist in the corresponding line!';
+    }
+    if (typeof match[GROUP_C_TO] !== 'undefined') {
+      selectedColTo = Number(match[GROUP_C_TO]);
+      if (selectedColFrom > selectedColTo) {
+        return 'Error: Selection start column is after selection end column.';
+      }
+      if (lines[selectedTo - 1].length < (selectedColTo - 1)) {
+        return 'Error: The selection end column does not exist in the corresponding line!';
+      }
+    } else if (selectedFrom !== selectedTo) {
+      return 'Error: No end column selected in a multi-line selection!';
+    }
+  }
+
   // Prevent trying to show lines that do not exist in the file
   from = Math.max(from, 1);
   to = Math.min(to, lines.length);
@@ -94,8 +121,35 @@ export async function getGitHubLinePreview(match) {
   // Put lines into code block
   let codeContent = '```' + lang + '\n'; // Put language at start of code block for Discord syntax highlighting
   for (let i = from; i <= to; i++) {
-    // Display > character in front of selected lines
-    codeContent += `${((i >= selectedFrom && i <= selectedTo) ? '>' : ' ')}${(nLength(i) < nLength(to) ? ' ' : '')}${i} ${lines[i - 1]}\n`;
+
+    const withinSelectedRows = i >= selectedFrom && i <= selectedTo;
+
+    // Display > character in front of selected lines:
+    codeContent += `${(withinSelectedRows ? '>' : ' ')}${(nLength(i) < nLength(to) ? ' ' : '')}${i} ${lines[i - 1]}\n`;
+
+    // Mark selected columns with a ^ character below:
+    if (withinSelectedRows && selectedColFrom !== null) { // Within selected rows and columns are selected
+      codeContent += ' '.repeat(nLength(to) + 2); // Pad to include the spacing and line numbers
+      if (i === selectedFrom) { // Pad to the start column in the line where the selection starts
+        codeContent += ' '.repeat(selectedColFrom - 1);
+      }
+      codeContent += '^';
+      if (selectedColTo !== null) {
+        if (i === selectedTo) { // Only mark until we reach the end column in the line where the selection ends
+          if (selectedFrom === selectedTo) { // When one line is selected: Mark columns in the line
+            codeContent += '^'.repeat(selectedColTo - selectedColFrom - 1);
+          } else { // When more lines are selected: Mark columns in the last line until the selection is reached
+            codeContent += '^'.repeat(selectedColTo - 2);
+          }
+        } else if (i === selectedFrom) { // When more lines are selected: Mark columns in the first line until end of line
+          codeContent += '^'.repeat(lines[i - 1].length - selectedColFrom);
+        } else { // All other lines in the selection are completely marked
+          codeContent += '^'.repeat(lines[i - 1].length - 1);
+        }
+      }
+      codeContent += '\n';
+    }
+
   }
   codeContent += '```';
 
