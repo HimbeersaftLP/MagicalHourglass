@@ -20,8 +20,10 @@ A Discord bot for the BoxOfDevs Discord
   - Deprecated prefixed commands
   - `github` command added
     - Sends the same line preview as GitHub links in regular messages
+    - Responds with an error message instead of silently failing like the automatic preview
     - Improvements: (apply to the old automatic line preview as well)
       - Uses embed for more possible characters
+      - Support for selection of columns added
       - Some bugfixes
   - `announce` command added
     - Used by the bot administrator to notify all servers about updates
