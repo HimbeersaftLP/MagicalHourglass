@@ -14,6 +14,6 @@ RUN npm install
 
 COPY . .
 
-RUN mv defaults.js.docker defaults.js
+RUN mv defaults.docker.js defaults.js
 
 CMD [ "node", "src/bot.js" ]

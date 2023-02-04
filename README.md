@@ -35,6 +35,6 @@ A Discord bot for the BoxOfDevs Discord
 - Config changes
   - JavaScript config instead of `config.json` because it's easier to load with ES-modules syntax
   - Configuration values can now be given using environment variables, defaults set in `defaults.js`
-    - for the Docker image in `defaults.js.docker`
+    - for the Docker image in `defaults.docker.js`
   - Constants like the reaction alphabet are no longer in the config file
 - Updated all dependencies

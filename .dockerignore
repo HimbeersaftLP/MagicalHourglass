@@ -6,7 +6,7 @@
 .gitignore
 # Example config
 defaults.js
-defaults.js.example
+defaults.example.js
 # Registered commands (created at runtime)
 registered_commands.json
 # NPM package stuff
@@ -17,7 +17,7 @@ npm-debug.log
 Dockerfile
 .dockerignore
 docker-compose.yml
-docker-compose.yml.example
+docker-compose.example.yml
 # ESLint (needed for development only)
 .eslintrc.json
 # Misc. resources
