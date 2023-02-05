@@ -13,7 +13,7 @@ A Discord bot for the BoxOfDevs Discord
   - Use custom command handler instead of switch/case
   - Use async/await instead of Promises
   - More robust error handling
-- Respones are now sent as proper replies
+- Responses are now sent as proper replies
 - Bot now responds to DMs
 - Commands:
   - Added slash commands
