@@ -1,6 +1,8 @@
 # MagicalHourglass
 
-A Discord bot for the BoxOfDevs Discord
+[![Join the Discord Server](https://img.shields.io/discord/252874887113342976?logo=discord)](https://www.himbeer.me/discord)
+
+A Discord bot for the PMMP community, originally made for the BoxOfDevs Discord.
 
 ## Changelog
 

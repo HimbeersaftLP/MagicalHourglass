@@ -46,6 +46,7 @@ export function getInfo(client) {
       .addFields([
         { name: 'GitHub:', value: 'https://github.com/HimbeersaftLP/MagicalHourglass' },
         { name: 'Author:', value: 'Himbeer#8553' },
+        { name: 'Support Discord:', value: '[Join](https://www.himbeer.me/discord)' },
         { name: 'Invite:', value: '[Click Here](https://discordapp.com/oauth2/authorize?client_id=305631536852631552&scope=bot&permissions=1144384577)' },
         { name: 'Stats:', value: stats },
       ]),
