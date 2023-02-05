@@ -1,0 +1,20 @@
+---
+version: '3.3'
+
+services:
+  magicalhourglass:
+    image: himbeersaftlp/magicalhourglass
+    build: "."
+    container_name: magicalhourglass
+    restart: unless-stopped
+    environment:
+      PREFIX: ","
+      DISCORDTOKEN: "Your Discord bot accounts token"
+      DISCORDAPPLICATIONID: "Your Discord application client ID"
+      OWMID: "Your OpenWeatherMap App ID"
+      GOOGLEKEY: "Your Google CSE Api key"
+      GOOGLECSEID: "Your Google CSE search engine ID"
+      JUICEEMOTE: "Textual representation of the bot's emote in the form <:emote_name:id>"
+      OWNERID: "ID of the bot's owner, use @YourUsernameHere or the command whoami to find it out"
+      BLOCKEDUSERS: "an array of,blocked user IDs"
+...

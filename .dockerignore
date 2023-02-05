@@ -1,4 +1,25 @@
+# .dockerignore file
+# VSCode
+.vscode/
+# Git
 .git
-node_modules
+.gitignore
+# Example config
+defaults.js
+defaults.example.js
+# Registered commands (created at runtime)
+registered_commands.json
+# NPM package stuff
+node_modules/
+package-lock.json
 npm-debug.log
-config_example.json
+# Docker
+Dockerfile
+.dockerignore
+docker-compose.yml
+docker-compose.example.yml
+# ESLint (needed for development only)
+.eslintrc.json
+# Misc. resources
+README.md
+emoji.png
