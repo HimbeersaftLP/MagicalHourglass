@@ -4,6 +4,8 @@
 # Git
 .git
 .gitignore
+# GitHub
+.github
 # Example config
 defaults.js
 defaults.example.js
