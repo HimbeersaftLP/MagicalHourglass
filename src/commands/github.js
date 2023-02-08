@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, EmbedBuilder } from 'discord.js';
+import { CommandInteraction, Message, EmbedBuilder, MessagePayload } from 'discord.js';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import fetch from 'node-fetch';
 import { nLength } from '../extras.js';
@@ -13,6 +13,8 @@ const GROUP_L_FROM = 3;
 const GROUP_C_FROM = 4;
 const GROUP_L_TO = 5;
 const GROUP_C_TO = 6;
+
+const MAX_DISCORD_MESSAGE_LENGTH = 2000;
 
 export const data = [{
   builder: new SlashCommandBuilder()
@@ -29,7 +31,7 @@ export const data = [{
 /**
  * Get the message previewing lines for a file on GitHub
  * @param {RegExpExecArray} match The result of gitHubRegex.exec()
- * @returns {Promise<string>}
+ * @returns {Promise<MessagePayload|string>}
  */
 export async function getGitHubLinePreview(match) {
   // Match -> 1: repo; 2: file; 3: line-from; 4: line-to
@@ -45,14 +47,8 @@ export async function getGitHubLinePreview(match) {
     return 'Error: GitHub file not found!';
   }
   if (res.status !== 200) {
-    return 'An error occured while accessing the GitHub API!';
+    return 'Error: Could not fetch the file from GitHub!';
   }
-
-  const embed = new EmbedBuilder()
-    .setColor(Math.floor(Math.random() * 16777215))
-    .setFooter({
-      text: `GitHub repository: ${repo}`,
-    });
 
   const body = await res.text();
   const lines = body.split('\n');
@@ -153,15 +149,29 @@ export async function getGitHubLinePreview(match) {
   }
   codeContent += '```';
 
-  embed.setTitle(`Showing lines ${from} - ${to} of \`${fileName}\``);
-  embed.setDescription(codeContent);
-  if (selectedFrom === selectedTo) { // No end line given (#Ln)
-    embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}`);
-  } else {
-    embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}-L${selectedTo}`);
-  }
+  const previewTitle = `Showing lines ${from} - ${to} of \`${fileName}\``;
 
-  return { embeds: [ embed ] };
+  const textMessage = previewTitle + '\n' + codeContent;
+
+  if (textMessage.length <= MAX_DISCORD_MESSAGE_LENGTH) {
+    return { content: textMessage };
+  } else {
+    const embed = new EmbedBuilder()
+      .setColor(Math.floor(Math.random() * 16777215))
+      .setFooter({
+        text: `GitHub repository: ${repo}`,
+      });
+
+    embed.setTitle(previewTitle);
+    embed.setDescription(codeContent);
+    if (selectedFrom === selectedTo) { // No end line given (#Ln)
+      embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}`);
+    } else {
+      embed.setURL(`https://github.com/${repo}/blob/${fileName}#L${selectedFrom}-L${selectedTo}`);
+    }
+
+    return { embeds: [ embed ] };
+  }
 }
 
 /**

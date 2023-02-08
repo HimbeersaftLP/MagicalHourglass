@@ -72,10 +72,8 @@ client.on('messageCreate', async message => {
           // Only error messages are string
           console.log(`--> failed with: "${result}"`);
         } else {
-          message.reply({
-            embeds: result.embeds,
-            allowedMentions: { repliedUser: false }, // Reply without ping
-          });
+          result.allowedMentions = { repliedUser: false };
+          message.reply(result);
         }
       }
     } catch (err) {
