@@ -1,4 +1,4 @@
-FROM node:20.8.1-slim
+FROM node:21.0.0-slim
 
 WORKDIR /home/node/app
 
