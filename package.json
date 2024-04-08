@@ -27,7 +27,7 @@
   },
   "homepage": "https://github.com/HimbeersaftLP/MagicalHourglass#readme",
   "devDependencies": {
-    "eslint": "^8.33.0",
+    "eslint": "^9.0.0",
     "eslint-plugin-jsdoc": "^48.0.5"
   },
   "type": "module"
