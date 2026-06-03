@@ -1,4 +1,4 @@
-FROM node:26.2.0-slim
+FROM node:26.3.0-slim
 
 WORKDIR /home/node/app
 
