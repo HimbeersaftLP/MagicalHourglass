@@ -32,8 +32,11 @@ export const data = [{
  * @returns {Promise<MessagePayload|string>}
  */
 export async function getGitIssue(repo, number) {
+  if (!/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(repo)) {
+    return 'Error: Invalid repository name. Expected format: user/repo';
+  }
   const res = await fetch(
-    'https://api.github.com/repos/' + repo + '/issues/' + encodeURIComponent(number), {
+    'https://api.github.com/repos/' + encodeURIComponent(repo) + '/issues/' + encodeURIComponent(number), {
       headers: {
         'User-Agent': 'MagicalHourglass',
         'Accept': 'application/vnd.github.squirrel-girl-preview',
